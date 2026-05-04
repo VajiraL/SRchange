@@ -1,0 +1,37 @@
+# environment files
+.venv/
+pyproject.toml
+.python-version
+
+# data and intermediate results
+data/
+data-raw/
+
+# file types
+*.nc
+*.tif
+*.zarr
+*.csv
+*.png
+*svg
+
+# temporary files
+**/.ipynb_checkpoints/
+**/.DS_Store
+**/.vscode/
+discard/
+
+# models
+models/
+*.joblib
+*.pkl
+
+# Visual Studio Code
+.vscode/
+
+# coding agents
+.opencode/
+AGENTS.md
+
+# logs
+*.log
