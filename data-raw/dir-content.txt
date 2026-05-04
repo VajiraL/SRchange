@@ -1,0 +1,25 @@
+=== SRchange Raw Data Directory Structure ===
+Date: Mon May  4 01:10:30 PM UTC 2026
+
+This directory contains raw source datasets for Earth system modelling.
+
+data-raw/
+├── dir-content.txt
+├── FutureLU
+│   ├── about.txt
+│   ├── SSP1_RCP26_country-f.tif
+│   ├── SSP2_RCP45_country-f.tif
+│   ├── SSP3_RCP70_country-f.tif
+│   └── SSP4_RCP60_country-f.tif
+├── gHM
+│   ├── about.txt
+│   ├── gHM.tfw
+│   └── gHM.tif
+└── HILDAp_v2
+    ├── about.txt
+    ├── hildaplus_GLOB-2-0_states.nc
+    └── hildaplus_GLOB-2-0_transitions.nc
+
+4 directories, 12 files
+
+Note: Actual data files are ignored. See about.txt in subdirectories for dataset details.
