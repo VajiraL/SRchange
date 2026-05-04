@@ -1,0 +1,46 @@
+=== SRchange Data Directory Structure ===
+Date: Mon May  4 01:08:59 PM UTC 2026
+
+--- data-raw/ (Source Datasets) ---
+data-raw/
+├── FutureLU
+│   ├── about.txt
+│   ├── SSP1_RCP26_country-f.tif
+│   ├── SSP2_RCP45_country-f.tif
+│   ├── SSP3_RCP70_country-f.tif
+│   └── SSP4_RCP60_country-f.tif
+├── gHM
+│   ├── about.txt
+│   ├── gHM.tfw
+│   └── gHM.tif
+└── HILDAp_v2
+    ├── about.txt
+    ├── hildaplus_GLOB-2-0_states.nc
+    └── hildaplus_GLOB-2-0_transitions.nc
+
+4 directories, 11 files
+
+--- data/ (Processed Datasets) ---
+data/
+├── climate_features.zarr
+│   ├── 1901_1930
+│   ├── 1931_1960
+│   ├── 1961_1990
+│   ├── 1991_2020
+│   ├── 2041_2070
+│   ├── 2071_2099
+│   └── zarr.json
+├── dir-content.txt
+├── gHM.nc
+└── LUclasses.zarr
+    ├── 1901_1930
+    ├── 1931_1960
+    ├── 1961_1990
+    ├── 1991_2020
+    ├── 2041_2070
+    ├── 2071_2099
+    └── zarr.json
+
+15 directories, 4 files
+
+Note: Data files (.nc, .tif, .zarr) are ignored by git. Only directory structures and metadata (.txt) are tracked.

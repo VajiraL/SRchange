@@ -1,0 +1,5 @@
+Global Human Modification
+source: https://doi.org/10.6084/m9.figshare.7283087
+
+Index between 0-1
+The global Human Modification map (HM) provides a cumulative measure of human modification of terrestrial lands across the globe at a 1-km resolution. It is a continuous 0-1 metric that reflects the proportion of a landscape modified based on modeling the physical extents of 13 anthropogenic stressors and their estimated impacts using spatially-explicit global datasets with a median year of 2016.

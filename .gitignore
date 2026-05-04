@@ -4,8 +4,17 @@ pyproject.toml
 .python-version
 
 # data and intermediate results
-data/
-data-raw/
+# Allow tracking directories but ignore their contents
+data/**
+!data/
+!data/**/
+!data/**/*.txt
+!data/dir-content.txt
+
+data-raw/**
+!data-raw/
+!data-raw/**/
+!data-raw/**/*.txt
 
 # file types
 *.nc
