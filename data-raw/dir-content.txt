@@ -23,3 +23,16 @@ data-raw/
 4 directories, 12 files
 
 Note: Actual data files are ignored. See about.txt in subdirectories for dataset details.
+--- data-raw/ForestAge/ ---
+data-raw/ForestAge/
+├── about.txt
+└── BGIForestAgeMPIBGC1.0.0.nc
+
+1 directory, 2 files
+--- data-raw/LGRIP/ ---
+data-raw/LGRIP/
+├── about.txt
+├── LGRIP_irrigated_fraction_005deg.tif
+└── LGRIP_rainfed_fraction_005deg.tif
+
+1 directory, 3 files

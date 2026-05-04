@@ -44,3 +44,7 @@ data/
 15 directories, 4 files
 
 Note: Data files (.nc, .tif, .zarr) are ignored by git. Only directory structures and metadata (.txt) are tracked.
+--- data/ (New) ---
+-rw-rw-r-- 1 vajira vajira 99M May  4 15:25 data/forest_age.nc
+-rw-rw-r-- 1 vajira vajira 99M May  4 15:25 data/irr_frac.nc
+-rw-rw-r-- 1 vajira vajira 99M May  4 15:25 data/rain_frac.nc
