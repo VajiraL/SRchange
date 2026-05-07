@@ -54,8 +54,8 @@ def process_ghm(input_tif, output_nc, target_zarr):
     ds = xr.open_dataset(temp_tif, engine='rasterio')
     
     # Rename and clean up
-    ghm = ds['band_data'].isel(band=0).drop_vars('band')
-    ghm = ghm.rename({'y': 'lat', 'x': 'lon'}).rename('gHM')
+    ghm = ds['band_data'].isel(band=0).drop_vars(['band', 'spatial_ref'])
+    ghm = ghm.rename({'y': 'lat', 'x': 'lon'}).rename('ghm')
     
     # Ensure coordinates match exactly
     ghm = ghm.assign_coords(lat=clat, lon=clon)

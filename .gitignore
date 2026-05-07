@@ -4,25 +4,26 @@ pyproject.toml
 .python-version
 
 # data and intermediate results
-# Allow tracking directories but ignore their contents
 data/**
 !data/
-!data/**/
-!data/**/*.txt
 !data/dir-content.txt
 
 data-raw/**
 !data-raw/
-!data-raw/**/
-!data-raw/**/*.txt
+!data-raw/dir-content.txt
+
+output_SR/**
+!output_SR/
+!output_SR/dir-content.txt
+!output_SR/**/*.csv
 
 # file types
 *.nc
 *.tif
 *.zarr
-*.csv
+# *.csv  # Commmented out to allow specific csvs in output_SR
 *.png
-*svg
+*.svg
 
 # temporary files
 **/.ipynb_checkpoints/

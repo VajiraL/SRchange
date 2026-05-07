@@ -84,8 +84,9 @@ def process_historical(hilda_path, output_zarr, periods_setup, clat, clon):
             if i == 0:
                 # Initialize the Zarr group with full dimensions
                 # Target shape is (3600, 7200)
+                # Use uint16 to accommodate values > 255 (e.g., 441, 442)
                 full_ds = xr.Dataset(
-                    {'LU_class': (['lat', 'lon'], np.zeros((3600, 7200), dtype='uint8'))},
+                    {'LU_class': (['lat', 'lon'], np.zeros((3600, 7200), dtype='uint16'))},
                     coords={'lat': clat, 'lon': clon}
                 )
                 full_ds.to_zarr(output_zarr, group=group_path, mode='a')
@@ -152,8 +153,9 @@ def process_future(future_dir, output_zarr, periods_setup, ssp_map, clat, clon):
                 group_path = f"{period_name}/{ssp_code}"
                 if i == 0:
                     # Initialize the Zarr group with full dimensions
+                    # Use uint16 for future classes like 441, 442
                     full_ds = xr.Dataset(
-                        {'LU_class': (['lat', 'lon'], np.zeros((3600, 7200), dtype='uint8'))},
+                        {'LU_class': (['lat', 'lon'], np.zeros((3600, 7200), dtype='uint16'))},
                         coords={'lat': clat, 'lon': clon}
                     )
                     full_ds.to_zarr(output_zarr, group=group_path, mode='a')
