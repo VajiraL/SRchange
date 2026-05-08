@@ -1,0 +1,189 @@
+{
+  "files": [
+    {
+      "id": 34829160,
+      "name": "SPP1.zip",
+      "size": 2456191607,
+      "is_link_only": false,
+      "download_url": "https://ndownloader.figshare.com/files/34829160",
+      "supplied_md5": "b053d8c8997e1ae80e8d5ea22870f495",
+      "computed_md5": "b053d8c8997e1ae80e8d5ea22870f495",
+      "mimetype": "application/zip"
+    },
+    {
+      "id": 34829370,
+      "name": "SSP2.zip",
+      "size": 2488886390,
+      "is_link_only": false,
+      "download_url": "https://ndownloader.figshare.com/files/34829370",
+      "supplied_md5": "666d8d3729876ecedea14be8fab46961",
+      "computed_md5": "666d8d3729876ecedea14be8fab46961",
+      "mimetype": "application/zip"
+    },
+    {
+      "id": 34829385,
+      "name": "SSP4.zip",
+      "size": 2474101289,
+      "is_link_only": false,
+      "download_url": "https://ndownloader.figshare.com/files/34829385",
+      "supplied_md5": "7739469dc2c27258c20203510ffb1dc1",
+      "computed_md5": "7739469dc2c27258c20203510ffb1dc1",
+      "mimetype": "application/zip"
+    },
+    {
+      "id": 34829391,
+      "name": "SSP5.zip",
+      "size": 2464826052,
+      "is_link_only": false,
+      "download_url": "https://ndownloader.figshare.com/files/34829391",
+      "supplied_md5": "0656826a300ef94c35d48b32c709122b",
+      "computed_md5": "0656826a300ef94c35d48b32c709122b",
+      "mimetype": "application/zip"
+    },
+    {
+      "id": 36918880,
+      "name": "Readme.txt",
+      "size": 723,
+      "is_link_only": false,
+      "download_url": "https://ndownloader.figshare.com/files/36918880",
+      "supplied_md5": "98df1b33ed01239361549d5b482f8f91",
+      "computed_md5": "98df1b33ed01239361549d5b482f8f91",
+      "mimetype": "message/news"
+    },
+    {
+      "id": 45894312,
+      "name": "SSP3.zip",
+      "size": 2515472981,
+      "is_link_only": false,
+      "download_url": "https://ndownloader.figshare.com/files/45894312",
+      "supplied_md5": "6482f259d4314bb18bf6908b37bbbe8c",
+      "computed_md5": "6482f259d4314bb18bf6908b37bbbe8c",
+      "mimetype": "application/zip"
+    }
+  ],
+  "folder_structure": {},
+  "authors": [
+    {
+      "id": 12425276,
+      "full_name": "Xinyu Wang",
+      "first_name": "Xinyu",
+      "last_name": "Wang",
+      "is_active": false,
+      "url_name": "_",
+      "orcid_id": ""
+    },
+    {
+      "id": 1429282,
+      "full_name": "Xiangfeng Meng",
+      "first_name": "Xiangfeng",
+      "last_name": "Meng",
+      "is_active": false,
+      "url_name": "_",
+      "orcid_id": ""
+    },
+    {
+      "id": 10103487,
+      "full_name": "Ying Long",
+      "first_name": "Ying",
+      "last_name": "Long",
+      "is_active": false,
+      "url_name": "_",
+      "orcid_id": "0000-0002-8657-6988"
+    }
+  ],
+  "custom_fields": [],
+  "figshare_url": "https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594",
+  "download_disabled": false,
+  "description": "<p dir=\"ltr\">Please download the latest version (Version 3).</p><p dir=\"ltr\">Spatially explicit population grids can play an important role in climate change, resource management, sustainable development, and other fields. Several gridded datasets already exist, but global data, especially high-resolution data on future populations, are largely lacking. Based on the WorldPop dataset, we present a global gridded population dataset covering 248 countries or areas at 30 arc-seconds (approximately 1 km) spatial resolution with five-year intervals for the period 2020\u20132100 by implementing random forest (RF) algorithm. Our dataset is quantitatively consistent with the shared socioeconomic pathways (SSPs) national population. The spatially explicit population grid we predicted in this study is validated by comparison with the WorldPop dataset at both the sub-national and grid level. A total of 3,569 provinces (almost all provinces on the globe) and more than 480 thousand grids are verified, and the results show that our dataset can serve as an input for predictive research in various fields.</p>",
+  "funding": "National Natural Science Foundation of China (Grant No.: 52178044)",
+  "funding_list": [
+    {
+      "id": 21638973,
+      "title": "National Natural Science Foundation of China (Grant No.: 52178044)",
+      "grant_code": "",
+      "funder_name": null,
+      "is_user_defined": 1
+    },
+    {
+      "id": 21638976,
+      "title": "National Natural Science Foundation of China (Grant No.: 51778319)",
+      "grant_code": "",
+      "funder_name": null,
+      "is_user_defined": 1
+    },
+    {
+      "id": 21638970,
+      "title": "Energy Foundation (Grant No.: G-1909-30260)",
+      "grant_code": "",
+      "funder_name": null,
+      "is_user_defined": 1
+    }
+  ],
+  "version": 3,
+  "status": "public",
+  "size": 12399479042,
+  "created_date": "2024-04-28T04:30:15Z",
+  "modified_date": "2024-04-28T04:30:15Z",
+  "is_public": true,
+  "is_confidential": false,
+  "is_metadata_record": false,
+  "confidential_reason": "",
+  "metadata_reason": "",
+  "license": {
+    "value": 1,
+    "name": "CC BY 4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "tags": [
+    "population grid",
+    "population distribution data",
+    "shared socioeconomic pathways (SSPs)",
+    "Geography"
+  ],
+  "keywords": [
+    "population grid",
+    "population distribution data",
+    "shared socioeconomic pathways (SSPs)",
+    "Geography"
+  ],
+  "categories": [
+    {
+      "id": 27607,
+      "title": "Human geography not elsewhere classified",
+      "parent_id": 27568,
+      "path": "/27391/27568/27607",
+      "source_id": "440699",
+      "taxonomy_id": 100
+    }
+  ],
+  "references": [],
+  "has_linked_file": false,
+  "citation": "Wang, Xinyu; Meng, Xiangfeng; Long, Ying (2022). Projecting 1 km-grid population distributions from 2020 to 2100 globally under shared socioeconomic pathways. figshare. Dataset. https://doi.org/10.6084/m9.figshare.19608594.v3",
+  "related_materials": [],
+  "is_embargoed": false,
+  "embargo_date": null,
+  "embargo_type": "file",
+  "embargo_title": "",
+  "embargo_reason": "",
+  "embargo_options": [],
+  "id": 19608594,
+  "title": "Projecting 1 km-grid population distributions from 2020 to 2100 globally under shared socioeconomic pathways",
+  "doi": "10.6084/m9.figshare.19608594.v3",
+  "handle": "",
+  "url": "https://api.figshare.com/v2/articles/19608594",
+  "published_date": "2024-04-28T04:30:15Z",
+  "thumb": "",
+  "defined_type": 3,
+  "defined_type_name": "dataset",
+  "group_id": null,
+  "url_private_api": "https://api.figshare.com/v2/account/articles/19608594",
+  "url_public_api": "https://api.figshare.com/v2/articles/19608594",
+  "url_private_html": "https://figshare.com/account/articles/19608594",
+  "url_public_html": "https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594",
+  "timeline": {
+    "posted": "2024-04-28T04:30:15",
+    "firstOnline": "2022-07-16"
+  },
+  "resource_title": null,
+  "resource_doi": null
+}

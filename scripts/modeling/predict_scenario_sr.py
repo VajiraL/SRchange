@@ -65,7 +65,7 @@ CLIM_SCENARIOS = [
     '2071_2099_ssp126', '2071_2099_ssp245', '2071_2099_ssp370', '2071_2099_ssp460'
 ]
 LU_PREDICTOR_FILES = [
-    'intact_1991_2020_none', 'pre-industrial_1901_1930_none',
+    'intact', 'pre-industrial',
     'standard_1901_1930_none', 'standard_1931_1960_none', 'standard_1961_1990_none', 'standard_1991_2020_none',
     'standard_2041_2070_ssp126', 'standard_2041_2070_ssp245', 'standard_2041_2070_ssp370', 'standard_2041_2070_ssp460',
     'standard_2071_2099_ssp126', 'standard_2071_2099_ssp245', 'standard_2071_2099_ssp370', 'standard_2071_2099_ssp460'
