@@ -18,7 +18,7 @@ import xarray as xr
 OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions'
 FINAL_ZARR = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios.zarr'
 
-N_ENSEMBLES = 3
+N_ENSEMBLES = 10
 N_FOLDS = 5
 
 # Coordinate lists (matching the prediction script)
@@ -34,7 +34,7 @@ CLIM_SCENARIOS = [
 OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions'
 FINAL_ZARR = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios.zarr'
 
-N_ENSEMBLES = 3
+N_ENSEMBLES = 10
 N_FOLDS = 5
 
 # Coordinate lists (matching the prediction script)

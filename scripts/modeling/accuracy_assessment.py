@@ -19,19 +19,19 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 # Configuration
 # ---------------------------
 TARGET_FILE = '/home/vajira/SRchange/data/SR-target/target-mergedSR_masked.nc'
-AGGREGATED_ZARR = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios.zarr'
+AGGREGATED_ZARR = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios_masked.zarr'
 # For detailed per-fold accuracy, we still need the individual folds
 # because the aggregated Zarr already merged them.
-FOLD_RESULTS_ROOT = '/home/vajira/SRchange/output_SR/scenario_predictions/CLIM_1991_2020_LU_standard_1991_2020_none'
+FOLD_RESULTS_ROOT = '/home/vajira/SRchange/output_SR/scenario_predictions/CLIM_1991_2020_LU_1991_2020'
 MASK_ROOT = '/home/vajira/SRchange/data/random_splits_MaskedMergedSR'
 
 K_VALUES = [0, 6]
-ENSEMBLES = [1, 2, 3]
+ENSEMBLES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 FOLDS = [1, 2, 3, 4, 5]
 
 # Scenario ID for reference accuracy (matching aggregate script structure)
 TRAINING_CLIM = '1991_2020'
-TRAINING_LU = 'standard_1991_2020_none'
+TRAINING_LU = '1991_2020'
 
 def log(msg):
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)
@@ -131,7 +131,7 @@ def run_accuracy_assessment():
         })
 
     df = pd.DataFrame(results)
-    df.to_csv('/home/vajira/SRchange/output_SR/accuracy_metrics.csv', index=False)
+    df.to_csv('/home/vajira/SRchange/output_SR/accuracy_metrics_5Ens.csv', index=False)
     
     # Summary
     log("\n--- ACCURACY SUMMARY (Weighted Aggregated Test) ---")

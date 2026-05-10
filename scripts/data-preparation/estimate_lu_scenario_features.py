@@ -16,7 +16,7 @@ DATA_CLUSTER = f"{ROOT_DIR}/data/climate_clusters.zarr"
 DATA_POP = f"{ROOT_DIR}/data/population"
 DATA_ANTHROME = f"{ROOT_DIR}/data/anthromes"
 DATA_MODELS = f"{ROOT_DIR}/data/statistical_models"
-OUTPUT_DIR = f"{ROOT_DIR}/data/LU_features"
+OUTPUT_DIR = f"{ROOT_DIR}/data/LU_features_New"
 
 FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
 
@@ -155,7 +155,7 @@ def process_scenario(args):
     # 5. Saving
     if scenario_type == "intact": filename = "intact.nc"
     elif scenario_type == "pre-industrial": filename = "pre-industrial.nc"
-    else: filename = f"{period}_{ssp if ssp else 'none'}.nc"
+    else: filename = f"{period}{('_' + ssp) if ssp else ''}.nc"
         
     out_path = f"{OUTPUT_DIR}/{filename}"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -179,7 +179,7 @@ def main():
             tasks.append(("standard", p, s))
     # Special
     tasks.append(("pre-industrial", "1901_1930", None))
-    tasks.append(("intact", "1991_2020", None))
+    tasks.append(("intact", "1901_1930", None))
 
     with mp.Pool(processes=32) as pool:
         pool.map(process_scenario, tasks)

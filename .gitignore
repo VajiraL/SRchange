@@ -41,6 +41,7 @@ models/
 
 # coding agents
 .opencode/
+.opencode-artefacts/
 AGENTS.md
 
 # logs

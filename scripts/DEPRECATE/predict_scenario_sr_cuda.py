@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 # ---------------------------
 # 1. Configuration
 # ---------------------------
-N_ENSEMBLES = 3
+N_ENSEMBLES = 10
 N_FOLDS = 5
 
 STATIC_FEATURES = ['elev', 'slope', 'roughness']
@@ -98,8 +98,8 @@ def pre_load_shared_data(template: xr.DataArray):
     for c_name in CLIM_SCENARIOS:
         group = get_clim_group(c_name)
         log(f"  Caching Climate: {c_name}")
-        climate_dict[c_name] = xr.open_zarr(CLIMATE_ZARR, group=group).interp_like(template, method='nearest')[CLIMATE_FEATURES].load()
-        cluster_dict[c_name] = xr.open_zarr(CLIMATE_CLUSTER_ZARR, group=group)['cluster'].interp_like(template, method='nearest').load()
+        climate_dict[c_name] = xr.open_zarr(CLIMATE_ZARR, group=group).interp_like(template, method='nearest')[CLIMATE_FEATURES].chunk({'lat': 360, 'lon': 720})
+        cluster_dict[c_name] = xr.open_zarr(CLIMATE_CLUSTER_ZARR, group=group)['cluster'].interp_like(template, method='nearest').chunk({'lat': 360, 'lon': 720})
         
     return terrain, climate_dict, cluster_dict
 

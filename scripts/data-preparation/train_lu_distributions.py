@@ -123,9 +123,9 @@ def run_learner():
                     if model:
                         model_database[feat][bin_key] = model
 
-    # 4. Model 2: Potential/Special (Anthrome x Cluster, no LU)
+    # 4. Model 2: Pre-industrial and Intact cases (Anthrome x Cluster, no LU)
     anthrome_only_models = {feat: {} for feat in FEATURES}
-    log("Fitting Potential Models (Anthrome x Cluster)...")
+    log("Fitting Special Models (Anthrome x Cluster)...")
     unique_anthromes = np.unique(anthromes[anthromes > 0])
     
     for cluster in range(6):
