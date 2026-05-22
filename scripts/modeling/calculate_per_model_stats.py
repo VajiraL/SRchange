@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# calculated per-model stats for k6 predictions across all scenarios, with static mask applied
 import os
 import numpy as np
 import xarray as xr
@@ -9,9 +10,8 @@ from pathlib import Path
 
 # Configuration
 OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions'
-MASK_BASE = '/home/vajira/SRchange/data/random_splits_MaskedMergedSR'
-LU_PATH = '/home/vajira/SRchange/data/harmonized_LU_classes.zarr'
-CSV_OUTPUT = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6_masked.csv'
+STATIC_MASK_PATH = '/home/vajira/SRchange/data/SR-target/training_domain_mask.nc'
+CSV_OUTPUT = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6.csv'
 N_ENSEMBLES = 5
 N_FOLDS = 5
 
@@ -30,16 +30,15 @@ LU_TYPES = [
     '2071_2099_ssp370', '2071_2099_ssp460',
 ]
 
+# Load static mask globally to be shared among workers (via fork on Linux)
+print(f"Loading static mask from {STATIC_MASK_PATH}...")
+with xr.open_dataset(STATIC_MASK_PATH) as ds_mask:
+    # The mask has 1 for data present and 0 for no data.
+    STATIC_MASK = (ds_mask['sr'] == 1).compute()
+print(f"Mask loaded. Keep count: {int(STATIC_MASK.sum().values)}")
+
 def log(msg):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
-
-def get_lu_group(clim_coord):
-    if "ssp" in clim_coord:
-        parts = clim_coord.split("_")
-        period = f"{parts[0]}_{parts[1]}"
-        ssp = parts[2]
-        return f"{period}/{ssp}"
-    return clim_coord
 
 def parse_scenario_name(folder_name):
     for c in CLIM_SCENARIOS:
@@ -57,12 +56,9 @@ def calculate_stats(da):
     
     # Weighted stats
     w_obj = da.weighted(weights)
-    
-    # Use positional argument for dim if possible, or ensure no name collision
     mean_w = float(w_obj.mean(dim=['lat', 'lon']))
     
-    # Manual variance calculation to avoid potential Weighted.mean collisions
-    # Weighted variance = Weighted_mean((x - Weighted_mean(x))^2)
+    # Manual variance calculation
     diff_sq = (da - mean_w)**2
     var_w = float(diff_sq.weighted(weights).mean(dim=['lat', 'lon']))
     std_w = float(np.sqrt(var_w))
@@ -78,21 +74,8 @@ def process_scenario(scn_folder):
     if not clim_val:
         return []
 
-    is_baseline = (clim_val == '1991_2020' and lu_val == '1991_2020')
     results = []
     
-    # Load vegetation mask for this climate
-    veg_mask = None
-    try:
-        lu_group = get_lu_group(clim_val)
-        ds_lu = xr.open_zarr(LU_PATH, group=lu_group)
-        # Class 0: Water/Ice, Class 66: Barren
-        m = ~ds_lu.LU_class.isin([0, 66])
-        # We'll interp later when we have the DA for geometry
-    except Exception as e:
-        print(f"Error loading LU mask for {clim_val}: {e}")
-        return []
-
     for ens in range(1, N_ENSEMBLES + 1):
         for fold in range(1, N_FOLDS + 1):
             fold_dir = os.path.join(OUTPUT_BASE, scn_folder, f"ensemble_{ens}", f"fold_{fold}")
@@ -105,19 +88,8 @@ def process_scenario(scn_folder):
                 with xr.open_dataset(k6_path, engine='netcdf4') as ds:
                     da = ds['sr'].load()
                 
-                # Apply vegetation mask (interp once per scenario if needed, but here simple per member)
-                if veg_mask is None:
-                    veg_mask = m.astype(float).interp_like(da, method='nearest') > 0.5
-                    veg_mask = veg_mask.compute()
-                
-                da = da.where(veg_mask)
-                
-                if is_baseline:
-                    mask_path = os.path.join(MASK_BASE, f"ensemble_{ens}", f"mask_fold_{fold}.nc")
-                    if os.path.exists(mask_path):
-                        with xr.open_dataarray(mask_path, engine='netcdf4') as mask_da:
-                            mask = mask_da.load()
-                        da = da.where(mask == 1)
+                # Apply static mask: only keep cells that were present in training SR
+                da = da.where(STATIC_MASK)
                 
                 mw, sw, mu, su = calculate_stats(da)
                 results.append({
@@ -137,11 +109,11 @@ def process_scenario(scn_folder):
     return results
 
 def main():
-    scn_folders = [d for d in os.listdir(OUTPUT_BASE) if d.startswith('CLIM_')]
+    scn_folders = sorted([d for d in os.listdir(OUTPUT_BASE) if d.startswith('CLIM_')])
     log(f"Found {len(scn_folders)} scenarios. Processing with parallel workers...")
 
     all_results = []
-    # Using a subset of cores to manage memory, though we have 2.3TB
+    # Using 64 workers as per the original script
     with ProcessPoolExecutor(max_workers=64) as pool:
         futures = {pool.submit(process_scenario, scn): scn for scn in scn_folders}
         for i, future in enumerate(as_completed(futures)):

@@ -16,6 +16,7 @@ output_SR/**
 !output_SR/
 !output_SR/dir-content.txt
 !output_SR/**/*.csv
+!output_SR/sr_change_attribution/
 
 # file types
 *.nc
@@ -24,12 +25,14 @@ output_SR/**
 # *.csv  # Commmented out to allow specific csvs in output_SR
 *.png
 *.svg
+*.pdf
 
 # temporary files
 **/.ipynb_checkpoints/
 **/.DS_Store
 **/.vscode/
 discard/
+scripts/temp-scripts/
 
 # models
 models/

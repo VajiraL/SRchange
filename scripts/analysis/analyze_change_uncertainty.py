@@ -1,11 +1,13 @@
-import pandas as pd
+# Calculate the change in SR and its attribution to climate and LU changes, along with uncertainty estimates, using the robust area-weighted per-model stats with static masking.
+
 import numpy as np
+import pandas as pd
 from pathlib import Path
 
-def calculate_change_uncertainty():
-    # Load per-model stats (already computed with robust area-weighting)
-    input_csv = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6_masked.csv'
-    output_csv = '/home/vajira/SRchange/output_SR/sr_change_uncertainty_k6_masked.csv'
+def calculate_change_uncertainty(period_base=None, period_target=None):
+    # Load per-model stats (already computed with robust area-weighting and static masking)
+    input_csv = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6.csv'
+    output_csv = f'/home/vajira/SRchange/output_SR/sr_change_attribution/sr_change_uncertainty_{period_base}_to_{period_target}.csv'
     
     if not Path(input_csv).exists():
         print(f"Error: {input_csv} not found.")
@@ -14,7 +16,18 @@ def calculate_change_uncertainty():
     df = pd.read_csv(input_csv)
     
     # Periods for decomposition
-    periods = ["intact", "pre-industrial", "1901_1930", "1931_1960", "1961_1990", "1991_2020"]
+    all_periods = ["intact", "pre-industrial",
+                   "1901_1930", "1931_1960", "1961_1990", "1991_2020",
+                   "2041_2070_ssp126", "2071_2099_ssp126",
+                   "2041_2070_ssp245", "2071_2099_ssp245",
+                   "2041_2070_ssp370", "2071_2099_ssp370",
+                   "2041_2070_ssp460", "2071_2099_ssp460"]
+    
+    # If no periods specified, process all successive transitions
+    if period_base is None or period_target is None:
+        periods_to_process = [(all_periods[i], all_periods[i+1]) for i in range(len(all_periods) - 1)]
+    else:
+        periods_to_process = [(period_base, period_target)]
     
     def get_val(clim, lu, ens, fold):
         # Climate for intact/PI is assumed to be 1901_1930 baseline
@@ -25,9 +38,7 @@ def calculate_change_uncertainty():
 
     results = []
     
-    for i in range(len(periods) - 1):
-        p_curr = periods[i]
-        p_next = periods[i+1]
+    for p_curr, p_next in periods_to_process:
         
         deltas = {
             'net': [],
@@ -82,16 +93,24 @@ def calculate_change_uncertainty():
     res_df = pd.DataFrame(results)
     res_df.to_csv(output_csv, index=False)
     
-    print("\n--- SR CHANGE ATTRIBUTION WITH UNCERTAINTY (ROBUST WEIGHTING) ---")
+    print(f"\n--- SR CHANGE ATTRIBUTION (STATIC MASK): {p_curr} -> {p_next} ---")
     print(f"Results saved to {output_csv}")
     
     summary = res_df.pivot(index='transition', columns='component', values='mean_change')
     print("\nMean Changes (mm):")
-    print(summary[['clim', 'lu', 'inter', 'net']])
+    cols = [c for c in ['clim', 'lu', 'inter', 'net'] if c in summary.columns]
+    print(summary[cols])
     
     summary_ci = res_df.pivot(index='transition', columns='component', values='ci95')
     print("\n95% Confidence Intervals (± mm):")
-    print(summary_ci[['clim', 'lu', 'inter', 'net']])
+    print(summary_ci[cols])
 
 if __name__ == "__main__":
-    calculate_change_uncertainty()
+    import sys
+    period_base = "pre-industrial"
+    period_target = "1991_2020"
+    if len(sys.argv) == 3:
+        period_base = sys.argv[1]
+        period_target = sys.argv[2]
+    
+    calculate_change_uncertainty(period_base=period_base, period_target=period_target)

@@ -1,48 +1,51 @@
 # SRchange
-Modelling and analysis of SR change
+Modelling and analysis of $S_R$ change
 
-In this project we use ML for predicting SR (Root zone water storage capacity) change under past/future/counterfactual climate x LU scenarios. We decompose the climate and LU effects and study the underlying drivers of change, spatial patterns and trends.
+Root zone storage capacity ($S_R$) is the maximum limit of vegetation-accessible water storage in soil. This capacity supports survival of vegetation during dry-spells. Vegetation (ecosystems) adapt the root zone (and $S_R$) responding the changing hydroclimatic conditions. $S_R$ is also modified by land use change.
+
+In this project we use ML for predicting $S_R$ (Root zone water storage capacity) change under past/future/counterfactual climate x LU scenarios. We decompose the climate and LU effects and study the underlying drivers of change, spatial patterns and trends.
 
 ## Scripts Overview
 
 ### Data Preparation
 | Script | Description |
 | :--- | :--- |
-| `harmonize_lu_classes.py` | Harmonizes land-use datasets (HILDA+, LUH2) into a consistent classification. |
-| `estimate_lu_scenario_features.py` | Generates synthetic land-use features (e.g., forest age, irrigation) for scenarios. |
-| `compute_climate_clusters.py` | Defines modelling units by clustering grid cells based on climate variables. |
-| `calc_randomcv_masks.py` | Generates spatial masks for cross-validation ensemble splits. |
-| `train_lu_distributions.py` | Trains statistical distributions for land-use features to support scenario synthesis. |
-| `estimate_hilda_forest_age.py` | Estimates forest stand age based on historical land-use transitions. |
-| `process_anthromes.py` | Prepares anthromes (anthropogenic biomes) data as model predictors. |
-| `process_population.py` | Processes and scales global population density datasets. |
-| `generate_k_maps.py` | Creates spatial visualizations of climate-based cluster assignments. |
+| `prepare_forest_lgrip.py` | Align LGRIP data|
+| `prepare_ghm.py` | Align GHM (global human modification index) data|
+| `process_anthromes.py` | Align anthrome data to common grid|
+| `process_population.py` | Align population data to common grid. |
+| `prepare_lu_classes.py` | Align past anf future land-use class to common grid and create a unified zarr store|
+| `harmonize_lu_classes.py` | Harmonizes the unified past anf future land-use dataset from `prepare_lu_classes.py` into a consistent classification. |
+| `estimate_hilda_forest_age.py` | Estimates forest stand age based on historical land-use transitions. (Deprecated)|
+| `compute_climate_clusters.py` | Defines modelling units by clustering grid cells based on climate variables. Produces equivalent cluster maps for the different climates|
+| `train_lu_distributions.py` | Trains statistical distributions within present period combined LU class x climate cluster.|
+| `estimate_lu_scenario_features.py` | Generates synthetic land-use features for scenarios by sampling from fitted distributions from `train_lu_distributions.py`.|
 | `validate_synthetic_features.py` | Validates synthesized scenario features against reference data. |
-| `prepare_lu_classes.py` | Initial processing and preparation of land-use class layers. |
-| `prepare_forest_lgrip.py` | Processes LGRIP forest cover data for feature engineering. |
-| `prepare_ghm.py` | Processes Global Hydrological Model outputs for inclusion in the modelling pipeline. |
+| `calc_randomcv_masks.py` | Generates spatial masks for cross-validation ensemble splits. |
+| `generate_k_maps.py` | Generate a cluster maps for a range of k for studying sensitivity to k (k_sweep analysis)|
 
 ### Modeling
 | Script | Description |
 | :--- | :--- |
-| `predict_sr_xgb_cpu.py` | Executes SR predictions using XGBoost models for all climate and land-use scenarios. |
-| `calculate_per_model_stats.py` | Computes area-weighted global statistics for each ensemble member with on-the-fly vegetation masking. |
-| `explain_models.py` | Performs SHAP-based feature importance and attribution analysis for the clustered models. |
-| `accuracy_assessment.py` | Calculates performance metrics (R², RMSE, KGE, etc.) for model validation. |
+| `predict_sr_xgb_cpu.py` | XGBoost modelling with CPU parellelization for SR prediction for all scenarios.|
 | `aggregate_predictions_parallel.py` | Aggregates ensemble predictions into scenario-level means and standard deviations. |
-| `cluster_sensitivity_analysis.py` | Tests model response to perturbations in individual features at the cluster level. |
-| `evaluate_k_sweep.py` | Analyzes the impact of the number of clusters (k) on model performance. |
-| `sampling_strategy_assessment.py` | Evaluates the effect of different training data sampling methods on prediction accuracy. |
+| `accuracy_assessment.py` | Calculates performance metrics (R², RMSE, KGE, etc.) for model validation. |
+accuracy. |
 | `mask_sr_predictions.py` | Post-processing script to apply land-cover masks to aggregated spatial outputs. |
-| `aggregate_sensitivity.py` | Aggregates sensitivity analysis results across multiple model runs. |
+| `calculate_per_model_stats.py` | Computes area-weighted global statistics for each ensemble member with on-the-fly no-vegetation masking. |
+| `cluster_sensitivity_analysis.py` | Testing sensitivity of predictions of climate cluster shift between training and prediction|
+| `evaluate_k_sweep.py` | Analyzing the sensitivity to the number of clusters (k) |
+| `sampling_strategy_assessment.py` | Evaluates the effect of different training data sampling methods on prediction. |
 | `sensitivity_all_models.py` | Conducts comprehensive sensitivity tests across all clustered models in the ensemble. |
+| `aggregate_sensitivity.py` | Aggregates sensitivity analysis outputs from `sensitivity_all_models.py`|
+| `explain_models.py` | SHAP analysis and feature importance |
 
-### Analysis & Uncertainty
+### Analysis
 | Script | Description |
 | :--- | :--- |
 | `analyze_change_uncertainty.py` | Decomposes SR changes into climate, LU, and interaction drivers with uncertainty propagation. |
 | `calculate_scenario_uncertainty.py` | Aggregates ensemble results to determine scenario-level means and 95% confidence intervals. |
-| `check_weighting_logic.py` | Verification utility to ensure area-weighting calculations are robust and consistent. |
+| `check_weighting_logic.py` | Verification utility to ensure area-weighting calculations are robust and consistent.(Deprecate) |
 
 ### Plotting & Visualization
 | Script | Description |
