@@ -15,19 +15,24 @@ This document records the evolution of masking strategies used for global root z
 *   **Key Data:** 
     *   `output_SR/DELELE/sr_scn_per_model_stats_k6_masked.csv`
 
-### 2. Static Masking (Current Standard - v2)
+### 2. Static Masking (v2)
 *   **Definition:** Using a single, binary mask derived from the training data availability.
-*   **Logic:** A static mask is created from `data/SR-target/training_domain_mask.nc` (where 1 = keep). Only the 5,169,061 pixels present in the training set are used for all mean calculations across all 168 scenarios.
-*   **Pros:** Ensures consistent area-weighted comparisons. Eliminates artifacts caused by shifting domains.
-*   **Cons:** Excludes a small number of valid predictions in historical/future scenarios that aren't in the training mask.
+*   **Logic:** A static mask is created from `data/SR-target/training_domain_mask.nc` (where 1 = keep). Initially, 5,169,061 pixels were used.
+*   **Cons:** Led to a ~121,000 pixel discrepancy between historical/future scenarios and the training domain, and did not account for the 1991-2020 baseline being a merged product of 5 test folds.
+
+### 3. Super-Static Masking (Current Standard - v3)
+*   **Definition:** The intersection of valid pixels across all 168 scenarios and the training domain.
+*   **Logic:** Generated as `data/SR-target/super_static_mask.nc` (4,787,114 pixels).
+*   **Baseline Logic:** The 1991-2020 baseline is reconstructed using 5 mutually exclusive test-set ensemble members (reconstructed from 25 folds), ensuring that training pixels are never included in the baseline mean.
+*   **Pros:** Ensures 100% pixel-perfect consistency across every single transition and scenario. Aligns statistics perfectly with the aggregated Zarr outputs.
 *   **Key Scripts:** 
+    *   `scripts/modeling/apply_super_static_mask.py`
     *   `scripts/modeling/calculate_per_model_stats.py`
     *   `scripts/analysis/analyze_change_uncertainty.py`
-    *   `scripts/analysis/aggregate_attribution_results.py`
 *   **Key Data:** 
-    *   `data/SR-target/training_domain_mask.nc`
+    *   `data/SR-target/super_static_mask.nc`
     *   `output_SR/sr_scn_per_model_stats_k6.csv`
-    *   `output_SR/sr_change_uncertainty_all.csv`
+    *   `output_SR/sr_change_attribution/sr_change_uncertainty_all.csv`
 
 ## Comparison of Global Statistics
 
@@ -35,12 +40,12 @@ The choice of masking strategy significantly impacts the global attribution of S
 
 ### SR Change Attribution (PI -> 1991-2020)
 
-| Component | Dynamic Mask (mm) | **Static Mask (v2) (mm)** | Delta (mm) |
+| Component | Dynamic Mask (mm) | Static Mask (v2) (mm) | **Super-Static (v3) (mm)** |
 | :--- | :---: | :---: | :---: |
-| **Net Change** | -1.33 | **+1.89** | +3.22 |
-| Climate Change | +7.62 | **+9.06** | +1.44 |
-| Land Use Change | -11.11 | **-8.34** | +2.77 |
-| Interaction | +2.16 | **+1.18** | -0.98 |
+| **Net Change** | -1.33 | +1.89 | **+0.42** |
+| Climate Change | +7.62 | +9.06 | **+9.31** |
+| Land Use Change | -11.11 | -8.34 | **-10.03** |
+| Interaction | +2.16 | +1.18 | **+1.14** |
 
 ### Key Takeaway
-Using a **Static Mask** flips the sign of the net global SR change from negative to positive. This is because the Dynamic Mask was inadvertently penalizing the `1991_2020` mean by including more NaNs in specific high-SR or low-SR regions that weren't missing in the PI scenario. The Static Mask provides a more robust and scientifically defensible baseline for climate and land-use change attribution.
+The **Super-Static Mask (v3)** provides the most rigorous assessment by ensuring that the exact same 4.78 million pixels are compared across all scenarios. By specifically handling the 1991-2020 baseline as a test-set ensemble reconstruction, we eliminate the bias introduced by training pixels (which are not available in other scenario predictions). This results in a slightly smaller but still positive net SR change (+0.42 mm) compared to the initial v2 static mask.

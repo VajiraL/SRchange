@@ -4,14 +4,14 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-def calculate_change_uncertainty(period_base=None, period_target=None):
+def calculate_change_uncertainty(period_base=None, period_target=None, save_individual=True):
     # Load per-model stats (already computed with robust area-weighting and static masking)
     input_csv = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6.csv'
     output_csv = f'/home/vajira/SRchange/output_SR/sr_change_attribution/sr_change_uncertainty_{period_base}_to_{period_target}.csv'
     
     if not Path(input_csv).exists():
         print(f"Error: {input_csv} not found.")
-        return
+        return None
 
     df = pd.read_csv(input_csv)
     
@@ -32,7 +32,11 @@ def calculate_change_uncertainty(period_base=None, period_target=None):
     def get_val(clim, lu, ens, fold):
         # Climate for intact/PI is assumed to be 1901_1930 baseline
         c = "1901_1930" if clim in ["intact", "pre-industrial"] else clim
-        mask = (df['climate'] == c) & (df['LU'] == lu) & (df['ensemble'] == ens) & (df['fold'] == fold)
+        
+        # 1991_2020 baseline only has fold=0 (merged test-set ensemble map)
+        f = 0 if (c == '1991_2020' and lu == '1991_2020') else fold
+        
+        mask = (df['climate'] == c) & (df['LU'] == lu) & (df['ensemble'] == ens) & (df['fold'] == f)
         val = df[mask]['mean_weighted']
         return val.values[0] if len(val) > 0 else np.nan
 
@@ -91,26 +95,46 @@ def calculate_change_uncertainty(period_base=None, period_target=None):
             })
 
     res_df = pd.DataFrame(results)
-    res_df.to_csv(output_csv, index=False)
-    
-    print(f"\n--- SR CHANGE ATTRIBUTION (STATIC MASK): {p_curr} -> {p_next} ---")
-    print(f"Results saved to {output_csv}")
+    if save_individual:
+        res_df.to_csv(output_csv, index=False)
+        print(f"\n--- SR CHANGE ATTRIBUTION (STATIC MASK): {p_curr} -> {p_next} ---")
+        print(f"Results saved to {output_csv}")
     
     summary = res_df.pivot(index='transition', columns='component', values='mean_change')
-    print("\nMean Changes (mm):")
-    cols = [c for c in ['clim', 'lu', 'inter', 'net'] if c in summary.columns]
-    print(summary[cols])
+    if not summary.empty:
+        print("\nMean Changes (mm):")
+        cols = [c for c in ['clim', 'lu', 'inter', 'net'] if c in summary.columns]
+        print(summary[cols])
     
-    summary_ci = res_df.pivot(index='transition', columns='component', values='ci95')
-    print("\n95% Confidence Intervals (± mm):")
-    print(summary_ci[cols])
+    return res_df
+
+def run_all_standard_transitions():
+    transitions = [
+        ("intact", "pre-industrial"),
+        ("pre-industrial", "1901_1930"),
+        ("1901_1930", "1931_1960"),
+        ("1931_1960", "1961_1990"),
+        ("1961_1990", "1991_2020"),
+        ("pre-industrial", "1991_2020"),
+        ("1991_2020", "2071_2099_ssp126"),
+        ("1991_2020", "2071_2099_ssp245"),
+        ("1991_2020", "2071_2099_ssp370"),
+        ("1991_2020", "2071_2099_ssp460"),
+    ]
+    
+    all_dfs = []
+    for b, t in transitions:
+        df_res = calculate_change_uncertainty(b, t, save_individual=True)
+        all_dfs.append(df_res)
+    
+    consolidated_df = pd.concat(all_dfs, ignore_index=True)
+    out_all = '/home/vajira/SRchange/output_SR/sr_change_attribution/sr_change_uncertainty_all.csv'
+    consolidated_df.to_csv(out_all, index=False)
+    print(f"\nConsolidated results saved to {out_all}")
 
 if __name__ == "__main__":
     import sys
-    period_base = "pre-industrial"
-    period_target = "1991_2020"
     if len(sys.argv) == 3:
-        period_base = sys.argv[1]
-        period_target = sys.argv[2]
-    
-    calculate_change_uncertainty(period_base=period_base, period_target=period_target)
+        calculate_change_uncertainty(sys.argv[1], sys.argv[2])
+    else:
+        run_all_standard_transitions()

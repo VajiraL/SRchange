@@ -10,7 +10,8 @@ from pathlib import Path
 
 # Configuration
 OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions'
-STATIC_MASK_PATH = '/home/vajira/SRchange/data/SR-target/training_domain_mask.nc'
+STATIC_MASK_PATH = '/home/vajira/SRchange/data/SR-target/super_static_mask.nc'
+MASK_BASE = '/home/vajira/SRchange/data/random_splits_MaskedMergedSR'
 CSV_OUTPUT = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6.csv'
 N_ENSEMBLES = 5
 N_FOLDS = 5
@@ -33,8 +34,8 @@ LU_TYPES = [
 # Load static mask globally to be shared among workers (via fork on Linux)
 print(f"Loading static mask from {STATIC_MASK_PATH}...")
 with xr.open_dataset(STATIC_MASK_PATH) as ds_mask:
-    # The mask has 1 for data present and 0 for no data.
-    STATIC_MASK = (ds_mask['sr'] == 1).compute()
+    # Use the 'mask' variable from the super_static_mask.nc
+    STATIC_MASK = (ds_mask['mask'] == 1).compute()
 print(f"Mask loaded. Keep count: {int(STATIC_MASK.sum().values)}")
 
 def log(msg):
@@ -74,37 +75,87 @@ def process_scenario(scn_folder):
     if not clim_val:
         return []
 
+    is_training_baseline = (clim_val == '1991_2020' and lu_val == '1991_2020')
     results = []
     
-    for ens in range(1, N_ENSEMBLES + 1):
-        for fold in range(1, N_FOLDS + 1):
-            fold_dir = os.path.join(OUTPUT_BASE, scn_folder, f"ensemble_{ens}", f"fold_{fold}")
-            k6_path = os.path.join(fold_dir, "sr_k6.nc")
+    if is_training_baseline:
+        # For 1991-2020, we create 5 ensemble-level test-set maps
+        for ens in range(1, N_ENSEMBLES + 1):
+            ens_da_merged = None
+            
+            for fold in range(1, N_FOLDS + 1):
+                fold_dir = os.path.join(OUTPUT_BASE, scn_folder, f"ensemble_{ens}", f"fold_{fold}")
+                k6_path = os.path.join(fold_dir, "sr_k6.nc")
+                mask_path = os.path.join(MASK_BASE, f"ensemble_{ens}", f"mask_fold_{fold}.nc")
 
-            if not os.path.exists(k6_path):
-                continue
+                if not (os.path.exists(k6_path) and os.path.exists(mask_path)):
+                    continue
 
-            try:
-                with xr.open_dataset(k6_path, engine='netcdf4') as ds:
-                    da = ds['sr'].load()
+                try:
+                    with xr.open_dataset(k6_path, engine='netcdf4') as ds:
+                        da = ds['sr'].load()
+                    with xr.open_dataarray(mask_path, engine='netcdf4') as m_da:
+                        fold_mask = m_da.load()
+                    
+                    # Apply fold-specific test mask (mask == 1 is the test set)
+                    da_test = da.where(fold_mask == 1) 
+                    
+                    if ens_da_merged is None:
+                        ens_da_merged = da_test
+                    else:
+                        # Combine folds (they are mutually exclusive)
+                        ens_da_merged = ens_da_merged.fillna(da_test)
+                except Exception as e:
+                    print(f"Error processing {k6_path}: {e}")
+            
+            if ens_da_merged is not None:
+                # Apply global super-static mask
+                ens_da_merged = ens_da_merged.where(STATIC_MASK)
+                mw, sw, mu, su = calculate_stats(ens_da_merged)
                 
-                # Apply static mask: only keep cells that were present in training SR
-                da = da.where(STATIC_MASK)
-                
-                mw, sw, mu, su = calculate_stats(da)
+                # We save this as fold=0 to indicate it's an ensemble-level merged result
                 results.append({
                     'scenario': scn_folder,
                     'climate': clim_val,
                     'LU': lu_val,
                     'ensemble': ens,
-                    'fold': fold,
+                    'fold': 0,
                     'mean_weighted': mw,
                     'std_weighted': sw,
                     'mean_unweighted': mu,
                     'std_unweighted': su
                 })
-            except Exception as e:
-                print(f"Error processing {k6_path}: {e}")
+    else:
+        # Standard processing for other scenarios (25 independent folds)
+        for ens in range(1, N_ENSEMBLES + 1):
+            for fold in range(1, N_FOLDS + 1):
+                fold_dir = os.path.join(OUTPUT_BASE, scn_folder, f"ensemble_{ens}", f"fold_{fold}")
+                k6_path = os.path.join(fold_dir, "sr_k6.nc")
+
+                if not os.path.exists(k6_path):
+                    continue
+
+                try:
+                    with xr.open_dataset(k6_path, engine='netcdf4') as ds:
+                        da = ds['sr'].load()
+                    
+                    # Apply static mask
+                    da = da.where(STATIC_MASK)
+                    
+                    mw, sw, mu, su = calculate_stats(da)
+                    results.append({
+                        'scenario': scn_folder,
+                        'climate': clim_val,
+                        'LU': lu_val,
+                        'ensemble': ens,
+                        'fold': fold,
+                        'mean_weighted': mw,
+                        'std_weighted': sw,
+                        'mean_unweighted': mu,
+                        'std_unweighted': su
+                    })
+                except Exception as e:
+                    print(f"Error processing {k6_path}: {e}")
                 
     return results
 
