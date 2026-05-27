@@ -15,7 +15,7 @@ PLOT_DIR = os.path.join(OUTPUT_BASE, 'plots/comparison')
 
 os.makedirs(PLOT_DIR, exist_ok=True)
 
-FEATURE_TO_COMPARE = 'tmean_p25'
+FEATURE_TO_COMPARE = 'gdm_0'
 
 def log(msg: str):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

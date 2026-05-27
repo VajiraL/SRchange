@@ -13,7 +13,7 @@ from datetime import datetime
 # 1. Configuration
 # ---------------------------
 DIR_ROOT = "/home/vajira/SRchange"
-SR_TARGET_PATH = os.path.join(DIR_ROOT, 'data/SR-target/target-mergedSR_masked.nc')
+SR_TARGET_PATH = os.path.join(DIR_ROOT, 'data/SR-target/merged_SR.nc')
 CLIMATE_ZARR = os.path.join(DIR_ROOT, 'data/climate_features.zarr')
 CLIMATE_CLUSTER_ZARR = os.path.join(DIR_ROOT, 'data/climate_clusters.zarr')
 TERRAIN_FILE = os.path.join(DIR_ROOT, 'data/terrain_0p05.nc')
@@ -53,8 +53,8 @@ XGB_PARAMS = {
     'eval_metric': 'rmse',
 }
 
-GLOBAL_SHAP_CAP = 200000
-CLUSTER_SHAP_CAP = 100000
+GLOBAL_SHAP_CAP = 500000
+CLUSTER_SHAP_CAP = 200000
 
 def log(msg: str):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -119,10 +119,7 @@ def explain_model(model, X_sample, name, cap):
     
     # Sampling for SHAP
     s_size = min(len(X_sample), cap)
-    # If 20% of cluster is larger than 100k, we still cap at 100k unless user wants otherwise.
-    # The prompt said "100,000 or 20%". Let's use the larger of the two if 20% is requested, 
-    # but here we'll stick to the logic of cap as a maximum.
-    # Actually, let's refine: sample 20% and then cap it.
+    # If 20% of cluster is larger than 200k, we cap at 250k.
     X_shap = X_sample.sample(n=s_size, random_state=42)
     
     log(f"Computing SHAP values for {len(X_shap)} samples...")
@@ -196,7 +193,7 @@ def main():
         # 20% or 100k
         c_cap = max(int(len(df_c) * 0.2), CLUSTER_SHAP_CAP)
         # Apply an absolute upper bound to prevent massive memory usage if 20% is huge
-        c_cap = min(c_cap, 200000) 
+        c_cap = min(c_cap, 250000) 
         
         explain_model(model_c, df_c[ALL_FEATURES], f"cluster_{cid}", c_cap)
         

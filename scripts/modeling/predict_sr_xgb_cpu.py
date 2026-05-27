@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 # ---------------------------
 # 1. Configuration
 # ---------------------------
-N_ENSEMBLES = 5
+N_ENSEMBLES = 3
 N_FOLDS = 5
 N_PARALLEL_JOBS = 5 # Running 5 folds in parallel (1 ensemble at a time)
 CORES_PER_FOLD = 64   # 5 * 64 = 320 cores total
@@ -48,7 +48,7 @@ XGB_PARAMS = {
 
 # Paths
 DIR_ROOT = "/home/vajira/SRchange"
-SR_TARGET_PATH = os.path.join(DIR_ROOT, 'data/SR-target/target-mergedSR_masked.nc')
+SR_TARGET_PATH = os.path.join(DIR_ROOT, 'data/SR-target/merged_SR.nc')
 CLIMATE_ZARR = os.path.join(DIR_ROOT, 'data/climate_features.zarr')
 CLIMATE_CLUSTER_ZARR = os.path.join(DIR_ROOT, 'data/climate_clusters.zarr')
 TERRAIN_FILE = os.path.join(DIR_ROOT, 'data/terrain_0p05.nc')

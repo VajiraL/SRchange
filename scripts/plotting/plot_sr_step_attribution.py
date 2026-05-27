@@ -5,7 +5,7 @@ import seaborn as sns
 from pathlib import Path
 
 # Setup paths
-csv_path = "/home/vajira/SRchange/output_SR/sr_scn_stats_with_uncertainty_k6_masked.csv"
+csv_path = "/home/vajira/SRchange/output_SR/sr_scn_stats_with_uncertainty_k6.csv"
 output_dir = Path("/home/vajira/SRchange/plots")
 output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -171,6 +171,7 @@ ymax = (plot_df['sr_mean'].max() + 15)
 plt.ylim(ymin, ymax)
 
 plt.tight_layout()
-plt.savefig(output_dir / "sr_change_step_attribution_masked_error.png", dpi=150, bbox_inches='tight')
+plt.savefig(output_dir / "sr_change_step_attribution_error_bars.png", dpi=150, bbox_inches='tight')
+plt.savefig(output_dir / "sr_change_step_attribution_error_bars.svg", bbox_inches='tight')
 
 print(f"Plot saved to {output_dir}")

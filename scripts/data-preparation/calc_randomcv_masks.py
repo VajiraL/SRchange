@@ -12,8 +12,8 @@ from datetime import datetime
 # ---------------------------
 # Configuration
 # ---------------------------
-REFERENCE_GRID =  'data/SR-target/target-mergedSR_masked.nc' # 'Trained target 
-OUTPUT_ROOT = 'data/random_splits_MaskedMergedSR'
+REFERENCE_GRID =  'data/SR-target/merged_SR.nc' # 'Trained target 
+OUTPUT_ROOT = 'data/random_splits_mergedSR'
 N_FOLDS = 5        # 20% Test set
 N_ENSEMBLES = 10    # number of independent shuffles
 BASE_SEED = 472    

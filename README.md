@@ -23,7 +23,7 @@ In this project we use ML for predicting $S_R$ (Root zone water storage capacity
 | `validate_synthetic_features.py` | Validates synthesized scenario features against reference data. |
 | `calc_randomcv_masks.py` | Generates spatial masks for cross-validation ensemble splits. |
 | `generate_k_maps.py` | Generate a cluster maps for a range of k for studying sensitivity to k (k_sweep analysis)|
-
+| `merge-target-sr` | Create the training target by merging $S_{R-Stocker}$ with $S_{R-WE}$ |
 ### Modeling
 | Script | Description |
 | :--- | :--- |
@@ -31,8 +31,8 @@ In this project we use ML for predicting $S_R$ (Root zone water storage capacity
 | `aggregate_predictions_parallel.py` | Aggregates ensemble predictions into scenario-level means and standard deviations. |
 | `accuracy_assessment.py` | Calculates performance metrics (R², RMSE, KGE, etc.) for model validation. |
 accuracy. |
-| `mask_sr_predictions.py` | Post-processing script to apply land-cover masks to aggregated spatial outputs. |
-| `calculate_per_model_stats.py` | Computes area-weighted global statistics for each ensemble member with on-the-fly no-vegetation masking. |
+| `apply_all-scenario_mask.py` | Post-processing script to apply an all-scenario super-mask (mask if a cell in all predictions if it's missing in any of the original 168 scenarios)|
+| `calculate_per_model_stats.py` | Computes area-weighted global statistics for each ensemble member while applying the super-mask|
 | `cluster_sensitivity_analysis.py` | Testing sensitivity of predictions of climate cluster shift between training and prediction|
 | `evaluate_k_sweep.py` | Analyzing the sensitivity to the number of clusters (k) |
 | `sampling_strategy_assessment.py` | Evaluates the effect of different training data sampling methods on prediction. |

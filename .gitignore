@@ -27,12 +27,14 @@ output_SR/**
 *.svg
 *.pdf
 
-# temporary files
+# temporary and deprecatedfiles
 **/.ipynb_checkpoints/
 **/.DS_Store
 **/.vscode/
 discard/
 scripts/temp-scripts/
+scripts/DEPRECATE/
+output_SR/DELETE/
 
 # models
 models/

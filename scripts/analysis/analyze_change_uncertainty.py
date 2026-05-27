@@ -12,6 +12,9 @@ def calculate_change_uncertainty(period_base=None, period_target=None, save_indi
     if not Path(input_csv).exists():
         print(f"Error: {input_csv} not found.")
         return None
+    
+    # create output directory if it doesn't exist
+    Path(output_csv).parent.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_csv(input_csv)
     

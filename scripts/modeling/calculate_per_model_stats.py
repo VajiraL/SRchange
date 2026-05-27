@@ -10,10 +10,10 @@ from pathlib import Path
 
 # Configuration
 OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions'
-STATIC_MASK_PATH = '/home/vajira/SRchange/data/SR-target/super_static_mask.nc'
-MASK_BASE = '/home/vajira/SRchange/data/random_splits_MaskedMergedSR'
+STATIC_MASK_PATH = '/home/vajira/SRchange/data/SR-target/all_scenario_super_mask.nc'
+MASK_BASE = '/home/vajira/SRchange/data/random_splits_mergedSR'
 CSV_OUTPUT = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6.csv'
-N_ENSEMBLES = 5
+N_ENSEMBLES = 3
 N_FOLDS = 5
 
 CLIM_SCENARIOS = [
@@ -31,10 +31,10 @@ LU_TYPES = [
     '2071_2099_ssp370', '2071_2099_ssp460',
 ]
 
-# Load static mask globally to be shared among workers (via fork on Linux)
+# Load static mask globally to be shared among workers
 print(f"Loading static mask from {STATIC_MASK_PATH}...")
 with xr.open_dataset(STATIC_MASK_PATH) as ds_mask:
-    # Use the 'mask' variable from the super_static_mask.nc
+    # Use the 'mask' variable from the all_scenario_super_mask.nc
     STATIC_MASK = (ds_mask['mask'] == 1).compute()
 print(f"Mask loaded. Keep count: {int(STATIC_MASK.sum().values)}")
 

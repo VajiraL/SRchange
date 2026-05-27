@@ -27,9 +27,9 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # ---------------------------
 OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions'
 FINAL_ZARR  = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios.zarr'
-MASK_BASE   = '/home/vajira/SRchange/data/random_splits_MaskedMergedSR'
+MASK_BASE   = '/home/vajira/SRchange/data/random_splits_mergedSR'
 
-N_ENSEMBLES = 5
+N_ENSEMBLES = 3
 N_FOLDS     = 5
 
 # One process per scenario; with 168 scenarios and 364 cores this is fine.
