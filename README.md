@@ -29,9 +29,8 @@ In this project we use ML for predicting $S_R$ (Root zone water storage capacity
 | :--- | :--- |
 | `predict_sr_xgb_cpu.py` | XGBoost modelling with CPU parellelization for SR prediction for all scenarios.|
 | `aggregate_predictions_parallel.py` | Aggregates ensemble predictions into scenario-level means and standard deviations. |
-| `accuracy_assessment.py` | Calculates performance metrics (R², RMSE, KGE, etc.) for model validation. |
-accuracy. |
-| `apply_all-scenario_mask.py` | Post-processing script to apply an all-scenario super-mask (mask if a cell in all predictions if it's missing in any of the original 168 scenarios)|
+| `accuracy_assessment.py` | Calculates performance metrics (R², RMSE, KGE, etc.) for model accuracy.|
+| `apply_all-scenario_mask.py` | Apply an all-scenario super-mask (mask if a cell in all predictions if it's missing in any of the original 168 scenarios)|
 | `calculate_per_model_stats.py` | Computes area-weighted global statistics for each ensemble member while applying the super-mask|
 | `cluster_sensitivity_analysis.py` | Testing sensitivity of predictions of climate cluster shift between training and prediction|
 | `evaluate_k_sweep.py` | Analyzing the sensitivity to the number of clusters (k) |
