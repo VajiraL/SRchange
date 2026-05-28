@@ -51,3 +51,6 @@ AGENTS.md
 
 # logs
 *.log
+
+# Draft notes
+notes/DRAFTS/
