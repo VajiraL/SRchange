@@ -1,63 +1,62 @@
-# Planning Document: Nonlinear Ecohydrological Thresholds in $S_R$
+# Planning Document: Nonlinear Ecohydrological Thresholds in $S_R$ (Version 2)
 
 ## 1. Objective
-Study thresholds of $S_R$ adaptation to climate and land-use (LU) stress. Identify identifiable hydroclimatic or LU thresholds beyond which $S_R$ changes abruptly, saturates, or declines.
+Study thresholds of $S_R$ adaptation to climate and land-use (LU) stress. Identify identifiable hydroclimatic or LU thresholds beyond which $S_R$ changes abruptly, saturates, or declines. Transition from simple curve fitting to a robust, manuscript-quality threshold analysis.
 
 ## 2. Research Questions
 - Are there identifiable hydroclimatic or land-use thresholds for $S_R$?
 - Does $S_R$ respond nonlinearly (tipping-like responses) to stress?
 - How do these thresholds vary across biomes, regions, or ecosystems?
+- How do climate and land-use interactions shift these thresholds?
 
-## 3. Methodology
+## 3. Implementation Strategy (Version 2)
 
-### 3.1 Data and Grouping Strategy
+### Phase 5: Advanced Threshold Detection (High Priority)
+- **GAM-based Smooth Thresholds:** Implement Generalized Additive Models (GAMs) to identify "soft" thresholds. Use the first derivative of the $SHAP(S_R)$ vs. Predictor curve to detect saturation points (e.g., where slope falls below 10% of max).
+- **Threshold Taxonomy:** Classify every cluster-feature relationship into: **Hard** (abrupt breakpoint), **Soft** (smooth saturation), **Collapse** (derivative sign reversal), or **No Threshold**.
+- **Variable Selection:** Perform advanced detection across all top predictors identified in the modeling phase. Final selection of variables for multivariate surfaces (Phase 6) will be based on the robustness and ecological relevance of detected thresholds.
+- **Uncertainty Quantification:** Implement a spatial block bootstrap (n=100+) to estimate the probability distribution of $X^*$.
 
-#### Existing Datasets
-- **SHAP values:** Pre-computed SHAP values for each model cluster (`output_SR/explanation/data/shap_cluster_*.npz`).
-- **Climate Clusters:** The $k=6$ map used for modeling, plus a sweep of $k=2$ to $25$ (`data/climate_clusters.zarr`, `data/k_sweep_clusters.zarr`). These provide a model-intrinsic grouping.
-- **Anthromes:** Useful for identifying human modification thresholds (`data/anthromes/`).
+### Phase 6: Multivariate Threshold Surfaces
+- **Climate-LU Interactions:** Use tensor-product GAMs to model $SHAP(S_R) = f(Aridity, gHM)$.
+- **Threshold Contours:** Extract the threshold for Aridity as a function of Human Modification. Identify if human pressure lowers the threshold of hydroclimatic adaptation.
 
-#### Eco-Regional Grouping Candidates
-- **WWF Ecoregions/Biomes (TEOW):** Shapefiles located in `data-raw/TEOW`.
-    - *Note:* TEOW biomes represent static boundaries based on recent past climate/compilation data. They do not capture biome shifts over time (past/future) and may contain compilation artifacts.
-- **Dynamic Biome Classifications:** To account for shifts, we could explore:
-    - **Holdridge Life Zones:** Quantifiable zones based on PET, precipitation, and biotemperature (can be calculated from our climate data).
-- **Köppen-Geiger Classification:** Standard climate-based classification. Historical (1901-2020) and future (SSPs) maps are available in `data-raw/BeckKG/`. 
-    - *Note:* These are period-specific, allowing for analysis of threshold shifts across climate scenarios, making them more robust than static biomes for temporal studies.
+### Phase 7: Independent Ecological Validation
+- **VOD & SIF Sensitivity:** Test if grid cells in "Saturated" regimes (Phase 3) show higher sensitivity of Productivity (GPP/SIF) or Vegetation Water Content (VOD) to drought (SPEI).
+- **Mortality Risk:** Cross-reference saturated zones with global tree mortality databases.
 
-### 3.2 Implementation Strategy
-- **Isolated Workspace:** All new scripts will be placed in `scripts/thresholds_analysis/`. Existing scripts will remain untouched.
-- **Output Management:** All intermediate data and figures will be saved in `output_SR/thresholds_analysis/` and `plots/thresholds_analysis/` respectively.
-- **Documentation & Logging:**
-    - **Analysis Log:** A running log file `notes/thresholds_analysis_log.md` will record every script execution, including inputs, outputs, and a brief description of the task.
-    - **Scientific Notes:** Detailed scientific summaries for each major analysis phase (e.g., SHAP interactions, threshold detection results) will be created as separate files in `notes/thresholds_scientific_notes/`.
+### Phase 8: Dynamic Scenario Analysis
+- **Dynamic Threshold Migration:** Instead of static thresholds, use the multivariate surfaces (Phase 6) to model how thresholds shift under future land-use and climate scenarios.
 
-### 3.3 Analysis Steps
-1. **SHAP Dependence Analysis:**
-   - Generate SHAP dependence plots for key predictors.
-   - Analyze interactions (e.g., Aridity vs. Forest Age).
-2. **Threshold Detection:**
-   - Apply segmented regression or GAMs to SHAP dependence curves.
-   - Use derivative analysis or breakpoint detection to identify threshold values ($X^*$).
-   - **Refinement Note (Future Work):** While piecewise linear models (Phase 2) effectively capture many transitions (especially for high $R^2 > 0.8$), some clusters exhibit more complex non-linearities (e.g., multi-modal or smooth transitions) that may be better captured by GAMs or higher-order segmented models. Future iterations should explore automated breakpoint selection and local regression techniques to handle low-$R^2$ regions.
-3. **Threshold Proximity Mapping:**
-   - Compute distance to thresholds for each grid cell ($D_i = X_i - X_i^*$).
-   - Classify cells: below, approaching, beyond threshold.
-4. **Typology Classification:**
-   - Adaptive, Saturation, Suppressed, or Reversal zones.
-5. **Scenario-Based Threshold Shifts (Phase 4):**
-   - Apply static thresholds to past and future climate/LU data to quantify the expansion of "Saturation" regimes.
-   - Study the velocity of threshold proximity change.
+---
 
-## 4. Expected Figures
-- **Figure 1:** Conceptual response curves.
-- **Figure 2:** SHAP dependence plots by cluster (Aridity, PET, Seasonality, Forest Age, gHM).
-- **Figure 3:** Detected thresholds (values and response changes).
-- **Figure 4:** Global map of threshold proximity.
-- **Figure 5:** Tipping-risk typology map.
+## Appendix: Version 1 Plan (Completed/Initial)
 
-## 5. Implementation Plan
-- [ ] Create a dedicated notebook/script for SHAP dependence extraction.
-- [ ] Implement threshold detection algorithms (Segmented Regression, GAMs).
-- [ ] Group results by biomes/clusters.
-- [ ] Generate maps and typology classifications.
+### 3.1 Data and Grouping Strategy (V1)
+- **SHAP values:** Pre-computed SHAP values for each model cluster.
+- **Climate Clusters:** K=6 map used for modeling.
+- **Köppen-Geiger Classification:** Standard climate-based classification for grouping.
+
+### 3.3 Analysis Steps (V1)
+1. **SHAP Dependence Analysis:** Generate SHAP dependence plots for key predictors. [COMPLETED]
+2. **Threshold Detection:** Apply piecewise linear regression to identify breakpoints ($X^*$). [COMPLETED for R2 > 0.8]
+3. **Threshold Proximity Mapping:** Compute distance to thresholds and classify "Adaptive" vs "Saturated" regimes. [COMPLETED for 1991-2020]
+4. **Scenario-Based Threshold Shifts:** Apply static thresholds to 1901 and 2099 scenarios. [COMPLETED]
+
+---
+
+## 4. Expected Figures (Refined)
+- **Figure 1:** Conceptual response curves (Hard, Soft, Collapse, Interaction).
+- **Figure 2:** Threshold Surface Map: Aridity threshold as a function of gHM/Forest Age.
+- **Figure 3:** Global Map of Threshold Proximity (Probabilistic, from bootstrap).
+- **Figure 4:** Validation Figure: Drought sensitivity of VOD/SIF inside vs. outside saturated regimes.
+
+## 5. Implementation Status
+- [x] SHAP dependence extraction with KG mapping.
+- [x] Piecewise linear threshold detection.
+- [x] Global proximity/regime mapping.
+- [x] Initial scenario analysis.
+- [ ] Implement GAM-based derivative detection (Phase 5).
+- [ ] Implement Spatial Block Bootstrap (Phase 5).
+- [ ] Create Tensor-product interaction surfaces (Phase 6).
+- [ ] Ecological validation with external datasets (Phase 7).
