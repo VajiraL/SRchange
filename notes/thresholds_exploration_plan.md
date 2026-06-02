@@ -39,11 +39,15 @@ Study thresholds of $S_R$ adaptation to climate and land-use (LU) stress. Identi
 2. **Threshold Detection:**
    - Apply segmented regression or GAMs to SHAP dependence curves.
    - Use derivative analysis or breakpoint detection to identify threshold values ($X^*$).
+   - **Refinement Note (Future Work):** While piecewise linear models (Phase 2) effectively capture many transitions (especially for high $R^2 > 0.8$), some clusters exhibit more complex non-linearities (e.g., multi-modal or smooth transitions) that may be better captured by GAMs or higher-order segmented models. Future iterations should explore automated breakpoint selection and local regression techniques to handle low-$R^2$ regions.
 3. **Threshold Proximity Mapping:**
    - Compute distance to thresholds for each grid cell ($D_i = X_i - X_i^*$).
    - Classify cells: below, approaching, beyond threshold.
 4. **Typology Classification:**
    - Adaptive, Saturation, Suppressed, or Reversal zones.
+5. **Scenario-Based Threshold Shifts (Phase 4):**
+   - Apply static thresholds to past and future climate/LU data to quantify the expansion of "Saturation" regimes.
+   - Study the velocity of threshold proximity change.
 
 ## 4. Expected Figures
 - **Figure 1:** Conceptual response curves.
