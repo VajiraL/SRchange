@@ -19,7 +19,7 @@ from dask.distributed import Client, LocalCluster
 warnings.filterwarnings('ignore')
 
 # -------- CONFIGURATION --------
-INPUT_BASE = "data-raw/BeckKG"
+INPUT_BASE = "data-raw/BeckKG-climatology"
 OUTPUT_ZARR = "data/climate_features.zarr"
 
 HIST_PERIODS = ["1901_1930", "1931_1960", "1961_1990", "1991_2020"]
