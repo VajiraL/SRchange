@@ -13,12 +13,12 @@ from sklearn.model_selection import train_test_split
 # ---------------------------
 # 1. Configuration
 # ---------------------------
-N_ENSEMBLES = 3
+N_ENSEMBLES = 1
 N_FOLDS = 5
 N_PARALLEL_JOBS = 5 # Running 5 folds in parallel (1 ensemble at a time)
-CORES_PER_FOLD = 64   # 5 * 64 = 320 cores total
+CORES_PER_FOLD = 64 # 5 * 64 = 320 cores total
 
-STATIC_FEATURES = ['elev', 'slope', 'roughness']
+STATIC_FEATURES = ['elev', 'slope', 'roughness', 'hand']
 CLIMATE_FEATURES = [
     'annual_precip', 'aridity_index', 'frost_months', 'gdm_0', 'gdm_10', 'gdm_5', 
     'longest_dry_spell_months', 'max_monthly_precip', 'max_monthly_tmean', 
@@ -35,7 +35,7 @@ SCENARIO_LU_FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
 ALL_FEATURES = STATIC_FEATURES + CLIMATE_FEATURES + SCENARIO_LU_FEATURES
 
 XGB_PARAMS = {
-    'objective': 'count:poisson',
+    'objective': 'reg:absoluteerror',  # 'count:poisson',
     'max_depth': 5,
     'eta': 0.1,
     'subsample': 0.8,
@@ -51,10 +51,10 @@ DIR_ROOT = "/home/vajira/SRchange"
 SR_TARGET_PATH = os.path.join(DIR_ROOT, 'data/SR-target/merged_SR.nc')
 CLIMATE_ZARR = os.path.join(DIR_ROOT, 'data/climate_features.zarr')
 CLIMATE_CLUSTER_ZARR = os.path.join(DIR_ROOT, 'data/climate_clusters.zarr')
-TERRAIN_FILE = os.path.join(DIR_ROOT, 'data/terrain_0p05.nc')
-LU_SCENARIO_FEATURES_DIR = os.path.join(DIR_ROOT, 'data/LU_features')
-MASK_ROOT = os.path.join(DIR_ROOT, 'data/random_splits_MaskedMergedSR')
-OUTPUT_BASE = os.path.join(DIR_ROOT, 'output_SR/scenario_predictions')
+TERRAIN_FILE = os.path.join(DIR_ROOT, 'data/terrain_hand_0p05.nc')
+LU_SCENARIO_FEATURES_DIR = os.path.join(DIR_ROOT, 'data/LU_features_2')
+MASK_ROOT = os.path.join(DIR_ROOT, 'data/random_splits_mergedSR')
+OUTPUT_BASE = os.path.join(DIR_ROOT, 'output_SR/scenario_predictions_squarederror')
 LOG_FILE = os.path.join(OUTPUT_BASE, 'production_run.log')
 
 # Scenario Definitions (12 Climate periods * 14 LU types = 168 tasks per fold)
@@ -103,7 +103,7 @@ def run_fold(ens_idx, fold_idx, df_train, lat_vals, lon_vals, terrain_data):
     log(f"[{label}] Training models...")
     dtr_g = xgb.DMatrix(df_tr[ALL_FEATURES], label=df_tr['sr'])
     dva_g = xgb.DMatrix(df_va[ALL_FEATURES], label=df_va['sr'])
-    m_glob = xgb.train(XGB_PARAMS, dtr_g, 1500, evals=[(dva_g, 'val')], early_stopping_rounds=100, verbose_eval=False)
+    m_glob = xgb.train(XGB_PARAMS, dtr_g, 2000, evals=[(dva_g, 'val')], early_stopping_rounds=100, verbose_eval=False)
     
     # Base training clusters on 1991-2020 period (standard in baseline)
     cl_ds = xr.open_zarr(CLIMATE_CLUSTER_ZARR, group='1991_2020')['cluster']
@@ -118,7 +118,7 @@ def run_fold(ens_idx, fold_idx, df_train, lat_vals, lon_vals, terrain_data):
         if np.sum(m_tr) < 100: continue
         dtr_c = xgb.DMatrix(df_tr[ALL_FEATURES][m_tr], label=df_tr['sr'][m_tr])
         dva_c = xgb.DMatrix(df_va[ALL_FEATURES][m_va], label=df_va['sr'][m_va])
-        cluster_models[cid] = xgb.train(XGB_PARAMS, dtr_c, 1200, evals=[(dva_c, 'val')], early_stopping_rounds=100, verbose_eval=False)
+        cluster_models[cid] = xgb.train(XGB_PARAMS, dtr_c, 1600, evals=[(dva_c, 'val')], early_stopping_rounds=100, verbose_eval=False)
 
     # 3. Prediction Loop
     log(f"[{label}] Starting prediction loop for 168 scenarios...")

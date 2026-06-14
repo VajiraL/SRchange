@@ -1,6 +1,6 @@
 """
 Pre-calculates Random CV Test Masks.
-5 Folds (20% test per fold) across 10 independent Ensemble shuffles.
+10 Folds (20% test per fold) across 10 independent Ensemble shuffles.
 Shuffles individual pixels (observations) rather than spatial blocks.
 """
 
@@ -13,10 +13,10 @@ from datetime import datetime
 # Configuration
 # ---------------------------
 REFERENCE_GRID =  'data/SR-target/merged_SR.nc' # 'Trained target 
-OUTPUT_ROOT = 'data/random_splits_mergedSR'
-N_FOLDS = 5        # 20% Test set
+OUTPUT_ROOT = 'data/random_splits_10_mergedSR'
+N_FOLDS = 10        # 20% Test set
 N_ENSEMBLES = 10    # number of independent shuffles
-BASE_SEED = 472    
+BASE_SEED = 34    
 
 def log(msg):
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)

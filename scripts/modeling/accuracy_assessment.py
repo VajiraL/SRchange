@@ -19,7 +19,7 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 # Configuration
 # ---------------------------
 TARGET_FILE = '/home/vajira/SRchange/data/SR-target/merged_SR.nc'
-AGGREGATED_ZARR = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios_masked.zarr'
+AGGREGATED_ZARR = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios_masked_HAND.zarr'
 # For detailed per-fold accuracy, we still need the individual folds
 # because the aggregated Zarr already merged them.
 FOLD_RESULTS_ROOT = '/home/vajira/SRchange/output_SR/scenario_predictions/CLIM_1991_2020_LU_1991_2020'
@@ -131,7 +131,7 @@ def run_accuracy_assessment():
         })
 
     df = pd.DataFrame(results)
-    df.to_csv('/home/vajira/SRchange/output_SR/accuracy_metrics_newMergeEns3.csv', index=False)
+    df.to_csv('/home/vajira/SRchange/output_SR/accuracy_metrics_newMergeEns3_HAND.csv', index=False)
     
     # Summary
     log("\n--- ACCURACY SUMMARY (Weighted Aggregated Test) ---")

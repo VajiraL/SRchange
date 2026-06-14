@@ -16,16 +16,16 @@ DIR_ROOT = "/home/vajira/SRchange"
 SR_TARGET_PATH = os.path.join(DIR_ROOT, 'data/SR-target/merged_SR.nc')
 CLIMATE_ZARR = os.path.join(DIR_ROOT, 'data/climate_features.zarr')
 CLIMATE_CLUSTER_ZARR = os.path.join(DIR_ROOT, 'data/climate_clusters.zarr')
-TERRAIN_FILE = os.path.join(DIR_ROOT, 'data/terrain_0p05.nc')
-LU_FEATURES_DIR = os.path.join(DIR_ROOT, 'data/LU_features')
-OUTPUT_BASE = os.path.join(DIR_ROOT, 'output_SR/explanation')
+TERRAIN_FILE = os.path.join(DIR_ROOT, 'data/terrain_hand_0p05.nc')
+LU_FEATURES_DIR = os.path.join(DIR_ROOT, 'data/LU_features_2')
+OUTPUT_BASE = os.path.join(DIR_ROOT, 'output_SR/explanation_hand')
 PLOT_DIR = os.path.join(OUTPUT_BASE, 'plots')
 DATA_DIR = os.path.join(OUTPUT_BASE, 'data')
 
 os.makedirs(PLOT_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
 
-STATIC_FEATURES = ['elev', 'slope', 'roughness']
+STATIC_FEATURES = ['elev', 'slope', 'roughness', 'hand']
 CLIMATE_FEATURES = [
     'annual_precip', 'aridity_index', 'frost_months', 'gdm_0', 'gdm_10', 'gdm_5', 
     'longest_dry_spell_months', 'max_monthly_precip', 'max_monthly_tmean', 
@@ -48,13 +48,13 @@ XGB_PARAMS = {
     'subsample': 0.8,
     'colsample_bytree': 0.8,
     'tree_method': 'hist',
-    'nthread': 64,
+    'nthread': 256,
     'device': 'cpu',
     'eval_metric': 'rmse',
 }
 
-GLOBAL_SHAP_CAP = 500000
-CLUSTER_SHAP_CAP = 200000
+GLOBAL_SHAP_CAP = 1000000 # 500k
+CLUSTER_SHAP_CAP = 500000 # 200k
 
 def log(msg: str):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -164,7 +164,7 @@ def main():
     y_glob = df['sr']
     
     dtrain_glob = xgb.DMatrix(X_glob, label=y_glob)
-    model_glob = xgb.train(XGB_PARAMS, dtrain_glob, num_boost_round=1000) 
+    model_glob = xgb.train(XGB_PARAMS, dtrain_glob, num_boost_round=2000) 
     
     explain_model(model_glob, df[ALL_FEATURES], "global", GLOBAL_SHAP_CAP)
     
@@ -188,12 +188,12 @@ def main():
         y_c = df_c['sr']
         
         dtrain_c = xgb.DMatrix(X_c, label=y_c)
-        model_c = xgb.train(XGB_PARAMS, dtrain_c, num_boost_round=1000)
+        model_c = xgb.train(XGB_PARAMS, dtrain_c, num_boost_round=1600)
         
-        # 20% or 100k
+        # 20% or 500k
         c_cap = max(int(len(df_c) * 0.2), CLUSTER_SHAP_CAP)
         # Apply an absolute upper bound to prevent massive memory usage if 20% is huge
-        c_cap = min(c_cap, 250000) 
+        c_cap = min(c_cap, 500000) 
         
         explain_model(model_c, df_c[ALL_FEATURES], f"cluster_{cid}", c_cap)
         

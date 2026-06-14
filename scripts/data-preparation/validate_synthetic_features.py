@@ -9,8 +9,8 @@ from datetime import datetime
 # ---------------------------
 ROOT_DIR = "/home/vajira/SRchange"
 DATA_PRESENT = f"{ROOT_DIR}/data/presentLU"
-DATA_SYNTHETIC = f"{ROOT_DIR}/data/scenario_features/standard_1991_2020_none.nc"
-OUTPUT_VAL = f"{ROOT_DIR}/notes/validation_1991_2020"
+DATA_SYNTHETIC = f"{ROOT_DIR}/data/LU_features_2/1991_2020.nc"
+OUTPUT_VAL = f"{ROOT_DIR}/notes/validation_1991_2020_filled"
 
 FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
 

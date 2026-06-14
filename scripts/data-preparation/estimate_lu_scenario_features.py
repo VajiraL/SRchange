@@ -16,9 +16,19 @@ DATA_CLUSTER = f"{ROOT_DIR}/data/climate_clusters.zarr"
 DATA_POP = f"{ROOT_DIR}/data/population"
 DATA_ANTHROME = f"{ROOT_DIR}/data/anthromes"
 DATA_MODELS = f"{ROOT_DIR}/data/statistical_models"
-OUTPUT_DIR = f"{ROOT_DIR}/data/LU_features_New"
+OUTPUT_DIR = f"{ROOT_DIR}/data/LU_features_2"
 
 FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
+
+present_lu = {
+    'gHM': xr.open_dataarray(f"{ROOT_DIR}/data/presentLU/gHM.nc"),
+    'irr_frac': xr.open_dataarray(f"{ROOT_DIR}/data/presentLU/irr_frac.nc"),
+    'rain_frac': xr.open_dataarray(f"{ROOT_DIR}/data/presentLU/rain_frac.nc"),
+    'forest_age': xr.open_dataarray(f"{ROOT_DIR}/data/presentLU/forest_age.nc")
+}
+
+# scale the forest age present LU feature to 0-1 range
+present_lu['forest_age'] = present_lu['forest_age'] / 300.0
 
 def log(msg):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
@@ -116,7 +126,7 @@ def process_scenario(args):
     for feat in FEATURES:
         log(f"  Estimating {feat}...")
         rank_map = xr.open_dataset(f"{DATA_MODELS}/{feat}_rank_map.nc")[f"{feat}_rank"].values
-        out_feat = np.full(cluster_map.shape, np.nan, dtype=np.float32)
+        out_feat = np.full(cluster_map.shape, present_lu[feat].values, dtype=np.float32) # Initialize with the same values as present LU features, but will be overwritten by model estimates where applicable
         
         if scenario_type == "standard":
             unique_lus = np.unique(lu_map[lu_map > 0])

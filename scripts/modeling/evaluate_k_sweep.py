@@ -50,7 +50,7 @@ CLIMATE_ZARR = f"{ROOT}/data/climate_features.zarr"
 K_MAPS_ZARR = f"{ROOT}/data/k_sweep_clusters.zarr"
 TERRAIN_FILE = f"{ROOT}/data/terrain_0p05.nc"
 LU_FILE = f"{ROOT}/data/scenario_features/standard_1991_2020_none.nc"
-MASK_ROOT = f"{ROOT}/data/random_splits_MaskedMergedSR"
+MASK_ROOT = f"{ROOT}/data/random_splits_mergedSR"
 OUTDIR = f"{ROOT}/output_SR/k_sweep"
 
 def log(msg):

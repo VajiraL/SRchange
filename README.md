@@ -38,6 +38,12 @@ In this project we use ML for predicting $S_R$ (Root zone water storage capacity
 | `sensitivity_all_models.py` | Conducts comprehensive sensitivity tests across all clustered models in the ensemble. |
 | `aggregate_sensitivity.py` | Aggregates sensitivity analysis outputs from `sensitivity_all_models.py`|
 | `explain_models.py` | SHAP analysis and feature importance |
+| `explain_pixel_change.py` | SHAP marginal contributions to SR change at pixel level |
+| `explain_pixel_present_pred.py` | SHAP marginal contributions to SR preds at pixel level in training scenario|
+| `ood_cluster_shift.py` | out-of-domain cv to compare objective functions|
+| `ood_cv_objectives.py` | out-of-domain cv to compare global vs clustered models |
+| `ood_distanace_test.py` | out-of-domain cv using all climate features|
+| `ood_hyperparameters.py` | Hyperparameter search  |
 
 ### Analysis
 | Script | Description |
@@ -57,6 +63,7 @@ In this project we use ML for predicting $S_R$ (Root zone water storage capacity
 | `plot_sensitivity_analysis.py` | Visualizes how SR predictions vary across feature ranges in sensitivity tests. |
 | `plot_k_sweep.py` | Visualizes the trade-off between model complexity (k clusters) and predictive accuracy. |
 | `plot_diagnostics.py` | Generates standard diagnostic plots for model performance and residual analysis. |
+| `local_change_plots.py` | Plots for pixel-level change|
 
 ### Optimization
 | Script | Description |
