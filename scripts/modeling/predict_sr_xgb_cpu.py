@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 # ---------------------------
 # 1. Configuration
 # ---------------------------
-N_ENSEMBLES = 1
+N_ENSEMBLES = 3
 N_FOLDS = 5
 N_PARALLEL_JOBS = 5 # Running 5 folds in parallel (1 ensemble at a time)
 CORES_PER_FOLD = 64 # 5 * 64 = 320 cores total
@@ -35,7 +35,7 @@ SCENARIO_LU_FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
 ALL_FEATURES = STATIC_FEATURES + CLIMATE_FEATURES + SCENARIO_LU_FEATURES
 
 XGB_PARAMS = {
-    'objective': 'reg:absoluteerror',  # 'count:poisson',
+    'objective': 'count:poisson', #'reg:absoluteerror',
     'max_depth': 5,
     'eta': 0.1,
     'subsample': 0.8,

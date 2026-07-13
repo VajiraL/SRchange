@@ -85,7 +85,7 @@ for i in range(len(historical_periods)):
 
 plot_df = pd.DataFrame(data)
 
-# Visualizing as a "Waterfall-esque" or Step-wise Attribution Plot
+# Visualizing as a Step-wise Attribution Plot
 plt.figure(figsize=(14, 8))
 sns.set_style("ticks")
 sns.set_context("paper", font_scale=1.6)
@@ -116,7 +116,7 @@ for i in range(len(plot_df)):
     else:
         label_text = f"{curr_sr:.1f}"
         
-    plt.text(x_base, curr_sr + 0.8, label_text, ha='center', va='bottom', fontweight='bold', fontsize=12, zorder=4)
+    plt.text(x_base, curr_sr + 0.4, label_text, ha='center', va='bottom', fontweight='bold', fontsize=14, zorder=4)
     
     # 2. Change bars for the transition to NEXT period (if not last)
     if i < len(plot_df) - 1:
@@ -153,21 +153,22 @@ for i in range(len(plot_df)):
                 va = 'bottom' if val >= 0 else 'top'
                 
                 plt.text(x_pos, curr_sr + val + y_offset, f"{val:+.1f}", 
-                         ha='center', va=va, fontsize=12, 
+                         ha='center', va=va, fontsize=14, 
                          color='black', rotation=0, zorder=5) # fontweight='bold' 8
 
 # Aesthetics
-plt.xticks(x, [period_labels[p] for p in plot_df['period']], fontsize=14) # fontweight='bold'
-plt.ylabel("$S_R$ (mm)", fontsize=18) # fontweight='bold'
-plt.title("Change of global mean $S_R$ over time", fontsize=26, pad=25) # fontweight='bold' 20
+plt.xticks(x, [period_labels[p] for p in plot_df['period']], fontsize=18) # fontweight='bold'
+plt.ylabel("$S_R$ (mm)", fontsize=22) # fontweight='bold'
+plt.yticks(fontsize=18)
+# plt.title("Change of global mean $S_R$ over time", fontsize=26, pad=25) # fontweight='bold' 20
 
-plt.legend(frameon=False, loc='upper center', ncols=4, fontsize=14) #, bbox_to_anchor=(1, 1))
+plt.legend(frameon=False, loc='upper center', ncols=4, fontsize=18) #, bbox_to_anchor=(1, 1))
 sns.despine(offset=10)
 plt.grid(axis='y', linestyle='--', alpha=0.4)
 
 # Adjust y-axis to focus on the top part
-ymin = plot_df['sr_mean'].min() - 20
-ymax = (plot_df['sr_mean'].max() + 15)
+ymin = plot_df['sr_mean'].min() - 10
+ymax = (plot_df['sr_mean'].max() + 5)
 plt.ylim(ymin, ymax)
 
 plt.tight_layout()

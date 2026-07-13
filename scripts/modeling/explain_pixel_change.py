@@ -60,7 +60,7 @@ XGB_PARAMS = {
     'subsample': 0.8,
     'colsample_bytree': 0.8,
     'tree_method': 'hist',
-    'nthread': 8,  # Kept moderate for localized execution
+    'nthread': 128,
     'device': 'cpu',
     'eval_metric': 'rmse',
 }
@@ -401,8 +401,8 @@ def main():
         coords_list = [(args.lat, args.lon)]
     else:
         # Fallback default location if nothing is specified (Example: Central Europe region)
-        log("No coordinates provided. Using default coordinate: lat=48.5, lon=9.2")
-        coords_list = [(48.5, 9.2)]
+        log("No coordinates provided. Using default coordinate: lat=58.77, lon=7.38")
+        coords_list = [(58.77, 7.38)]
         
     # 2. Train baseline models once
     m_glob, exp_glob, cluster_models, cluster_explainers = train_reference_models()
