@@ -16,7 +16,7 @@ DATA_CLUSTER = f"{ROOT_DIR}/data/climate_clusters.zarr"
 DATA_POP = f"{ROOT_DIR}/data/population"
 DATA_ANTHROME = f"{ROOT_DIR}/data/anthromes"
 DATA_MODELS = f"{ROOT_DIR}/data/statistical_models"
-OUTPUT_DIR = f"{ROOT_DIR}/data/LU_features_2"
+OUTPUT_DIR = f"{ROOT_DIR}/data/LU_features"
 
 FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
 

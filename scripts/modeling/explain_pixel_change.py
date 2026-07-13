@@ -34,7 +34,7 @@ SR_TARGET_PATH = os.path.join(DIR_ROOT, 'data/SR-target/merged_SR.nc')
 CLIMATE_ZARR = os.path.join(DIR_ROOT, 'data/climate_features.zarr')
 CLIMATE_CLUSTER_ZARR = os.path.join(DIR_ROOT, 'data/climate_clusters.zarr')
 TERRAIN_FILE = os.path.join(DIR_ROOT, 'data/terrain_hand_0p05.nc')
-LU_SCENARIO_FEATURES_DIR = os.path.join(DIR_ROOT, 'data/LU_features_2')
+LU_SCENARIO_FEATURES_DIR = os.path.join(DIR_ROOT, 'data/LU_features')
 OUTPUT_BASE = os.path.join(DIR_ROOT, 'output_SR/local_change')
 
 STATIC_FEATURES = ['elev', 'slope', 'roughness', 'hand']
