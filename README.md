@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1227882392.svg)](https://doi.org/10.5281/zenodo.21831934)
+
 # SRchange
 Modelling and analysis of $S_R$ change
 
