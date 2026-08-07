@@ -1,6 +1,7 @@
+# SRchange
+
 [![DOI](https://zenodo.org/badge/1227882392.svg)](https://doi.org/10.5281/zenodo.21831934)
 
-# SRchange
 Modelling and analysis of $S_R$ change
 
 Root zone storage capacity ($S_R$) is the maximum limit of vegetation-accessible water storage in soil. This capacity supports survival of vegetation during dry-spells. Vegetation (ecosystems) adapt the root zone (and $S_R$) responding the changing hydroclimatic conditions. $S_R$ is also modified by land use change.
