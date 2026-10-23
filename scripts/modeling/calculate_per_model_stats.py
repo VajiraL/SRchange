@@ -9,10 +9,10 @@ from datetime import datetime
 from pathlib import Path
 
 # Configuration
-OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions'
-STATIC_MASK_PATH = '/home/vajira/SRchange/data/SR-target/all_scenario_super_mask.nc'
+OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions_v2'
+STATIC_MASK_PATH = '/home/vajira/SRchange/data/SR-target/all_scenario_super_mask_v2.nc'
 MASK_BASE = '/home/vajira/SRchange/data/random_splits_mergedSR'
-CSV_OUTPUT = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6.csv'
+CSV_OUTPUT = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6_v2.csv'
 N_ENSEMBLES = 3
 N_FOLDS = 5
 
@@ -165,7 +165,7 @@ def main():
 
     all_results = []
     # Using 64 workers as per the original script
-    with ProcessPoolExecutor(max_workers=64) as pool:
+    with ProcessPoolExecutor(max_workers=int(os.environ.get("STATS_WORKERS", 64))) as pool:
         futures = {pool.submit(process_scenario, scn): scn for scn in scn_folders}
         for i, future in enumerate(as_completed(futures)):
             res = future.result()

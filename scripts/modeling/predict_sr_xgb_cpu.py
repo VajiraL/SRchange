@@ -52,9 +52,12 @@ SR_TARGET_PATH = os.path.join(DIR_ROOT, 'data/SR-target/merged_SR.nc')
 CLIMATE_ZARR = os.path.join(DIR_ROOT, 'data/climate_features.zarr')
 CLIMATE_CLUSTER_ZARR = os.path.join(DIR_ROOT, 'data/climate_clusters.zarr')
 TERRAIN_FILE = os.path.join(DIR_ROOT, 'data/terrain_hand_0p05.nc')
-LU_SCENARIO_FEATURES_DIR = os.path.join(DIR_ROOT, 'data/LU_features')
+# v2 (Oct 2026): LU features regenerated with corrected rank maps.
+# Overrides: SR_LU_DIR, SR_OUTPUT_BASE, SR_TASKS (e.g. '1:1,1:2'), SR_SCENARIOS
+# (e.g. '1901_1930:1901_1930,1991_2020:intact') -- used for the reproduction check.
+LU_SCENARIO_FEATURES_DIR = os.environ.get('SR_LU_DIR', os.path.join(DIR_ROOT, 'data/LU_features_v2'))
 MASK_ROOT = os.path.join(DIR_ROOT, 'data/random_splits_mergedSR')
-OUTPUT_BASE = os.path.join(DIR_ROOT, 'output_SR/scenario_predictions_squarederror')
+OUTPUT_BASE = os.environ.get('SR_OUTPUT_BASE', os.path.join(DIR_ROOT, 'output_SR/scenario_predictions_v2'))
 LOG_FILE = os.path.join(OUTPUT_BASE, 'production_run.log')
 
 # Scenario Definitions (12 Climate periods * 14 LU types = 168 tasks per fold)
@@ -69,6 +72,9 @@ LU_PREDICTOR_FILES = [
     '2041_2070_ssp126', '2041_2070_ssp245', '2041_2070_ssp370', '2041_2070_ssp460',
     '2071_2099_ssp126', '2071_2099_ssp245', '2071_2099_ssp370', '2071_2099_ssp460'
 ]
+
+SCENARIO_SUBSET = ({tuple(t.split(':')) for t in os.environ['SR_SCENARIOS'].split(',')}
+                   if os.environ.get('SR_SCENARIOS') else None)
 
 def log(msg: str):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -133,6 +139,8 @@ def run_fold(ens_idx, fold_idx, df_train, lat_vals, lon_vals, terrain_data):
         clusters_scn = cl_ds_scn.sel(lat=lat_vals, lon=lon_vals, method='nearest').values.flatten()
         
         for lu_name in LU_PREDICTOR_FILES:
+            if SCENARIO_SUBSET and (clim_name, lu_name) not in SCENARIO_SUBSET:
+                continue
             out_path = os.path.join(OUTPUT_BASE, f"CLIM_{clim_name}_LU_{lu_name}", f"ensemble_{ens_idx}", f"fold_{fold_idx}")
             os.makedirs(out_path, exist_ok=True)
             
@@ -209,6 +217,8 @@ def main():
     
     # Dispatch
     tasks = [(e, f) for e in range(1, N_ENSEMBLES + 1) for f in range(1, N_FOLDS + 1)]
+    if os.environ.get('SR_TASKS'):
+        tasks = [tuple(int(v) for v in t.split(':')) for t in os.environ['SR_TASKS'].split(',')]
     log(f"Dispatching {len(tasks)} folds across {N_PARALLEL_JOBS} parallel jobs...")
     
     Parallel(n_jobs=N_PARALLEL_JOBS)(

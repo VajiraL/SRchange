@@ -15,8 +15,12 @@ DATA_LU = f"{ROOT_DIR}/data/harmonized_LU_classes.zarr"
 DATA_CLUSTER = f"{ROOT_DIR}/data/climate_clusters.zarr"
 DATA_POP = f"{ROOT_DIR}/data/population"
 DATA_ANTHROME = f"{ROOT_DIR}/data/anthromes"
-DATA_MODELS = f"{ROOT_DIR}/data/statistical_models"
-OUTPUT_DIR = f"{ROOT_DIR}/data/LU_features"
+DATA_MODELS = f"{ROOT_DIR}/data/statistical_models_v2"   # v2: refit with NaN = 0 (absent)
+# v2 (Oct 2026): rank maps rebuilt under the bins the models were fitted on
+# (build_lu_rank_maps.py). The v1 maps came from an earlier anthrome x k5 binning
+# and were NaN on 29 % of land for gHM, which this sampler turned into zeros.
+DATA_RANKS = f"{ROOT_DIR}/data/statistical_models_v2"
+OUTPUT_DIR = f"{ROOT_DIR}/data/LU_features_v2"
 
 FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
 
@@ -29,6 +33,18 @@ present_lu = {
 
 # scale the forest age present LU feature to 0-1 range
 present_lu['forest_age'] = present_lu['forest_age'] / 300.0
+
+# v2: NaN means absent for these features; 0 on land, as in fitting and ranking.
+# (v1 reached the same zeros only through the NaN-rank fallthrough.) Applied
+# inside each worker: opening the zarr in the parent before fork deadlocks the pool.
+NAN_IS_ZERO = ['irr_frac', 'rain_frac', 'forest_age']
+
+def present_values(feat):
+    v = present_lu[feat].values.astype(np.float32)
+    if feat in NAN_IS_ZERO:
+        land = xr.open_zarr(DATA_LU, group='1991_2020')['LU_class'].values > 0
+        v = np.where(land & np.isnan(v), 0.0, v).astype(np.float32)
+    return v
 
 def log(msg):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
@@ -125,15 +141,17 @@ def process_scenario(args):
     
     for feat in FEATURES:
         log(f"  Estimating {feat}...")
-        rank_map = xr.open_dataset(f"{DATA_MODELS}/{feat}_rank_map.nc")[f"{feat}_rank"].values
-        out_feat = np.full(cluster_map.shape, present_lu[feat].values, dtype=np.float32) # Initialize with the same values as present LU features, but will be overwritten by model estimates where applicable
+        family = "standard" if scenario_type == "standard" else "anthrome"
+        rank_map = xr.open_dataset(f"{DATA_RANKS}/{feat}_rank_map_{family}.nc")[f"{feat}_rank"].values
+        has_rank = np.isfinite(rank_map)  # elsewhere the present-day value is kept
+        out_feat = present_values(feat).copy() # Initialize with the same values as present LU features, but will be overwritten by model estimates where applicable
         
         if scenario_type == "standard":
             unique_lus = np.unique(lu_map[lu_map > 0])
             for lu in unique_lus:
                 for cluster in range(6):
                     for pop in range(10):
-                        mask = (lu_map == lu) & (cluster_map == cluster) & (pop_map == pop)
+                        mask = (lu_map == lu) & (cluster_map == cluster) & (pop_map == pop) & has_rank
                         if not np.any(mask): continue
                         bin_key = f"{int(lu)}_{int(cluster)}_{int(pop)}"
                         if bin_key in models[feat]:
@@ -142,7 +160,7 @@ def process_scenario(args):
             unique_ants = np.unique(anthrome_map[anthrome_map > 0])
             for cluster in range(6):
                 for ant in unique_ants:
-                    mask = (cluster_map == cluster) & (anthrome_map == ant)
+                    mask = (cluster_map == cluster) & (anthrome_map == ant) & has_rank
                     if not np.any(mask): continue
                     bin_key = f"{int(cluster)}_{int(ant)}"
                     if bin_key in models[feat]:

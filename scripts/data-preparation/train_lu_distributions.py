@@ -14,7 +14,13 @@ DATA_LU = f"{ROOT_DIR}/data/harmonized_LU_classes.zarr"
 DATA_CLUSTER = f"{ROOT_DIR}/data/climate_clusters.zarr"
 DATA_POP = f"{ROOT_DIR}/data/population"
 DATA_ANTHROME = f"{ROOT_DIR}/data/anthromes/anthrome_2015.nc"
-OUTPUT_MODELS = f"{ROOT_DIR}/data/statistical_models"
+OUTPUT_MODELS = f"{ROOT_DIR}/data/statistical_models_v2"
+
+# v2 (Oct 2026): for these features NaN in the observation means *absent* (no
+# mapped cropland, no forest), so on land it is set to 0 before fitting. v1 fits
+# dropped those cells, under-weighting the zero mass, while the v1 sampler
+# effectively wrote 0 there; fitting, ranking and sampling now agree.
+NAN_IS_ZERO = ['irr_frac', 'rain_frac', 'forest_age']
 
 FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
 
@@ -103,6 +109,10 @@ def run_learner():
         else:
             ds = xr.open_dataset(f"{DATA_PRESENT}/{feat}.nc")
             obs[feat] = ds[feat].values
+
+    land = lu_classes > 0
+    for feat in NAN_IS_ZERO:
+        obs[feat] = np.where(land & np.isnan(obs[feat]), 0.0, obs[feat])
 
     # 3. Model 1: Standard (LU x Cluster x Pop)
     model_database = {feat: {} for feat in FEATURES}

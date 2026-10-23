@@ -21,7 +21,7 @@ from sklearn.model_selection import train_test_split
 # ---------------------------
 # 1. Configuration
 # ---------------------------
-CORES_TO_USE = 256  # Adjust based on your server capacity
+CORES_TO_USE = int(os.environ.get("SHAP_CORES", 256))  # lower on a shared server
 SHAP_CHUNK_SIZE = 800000  # Processes SHAP in chunks to optimize RAM
 
 STATIC_FEATURES = ['elev', 'slope', 'roughness', 'hand']
@@ -57,8 +57,14 @@ DIR_ROOT = "/home/vajira/SRchange"
 SR_TARGET_PATH = os.path.join(DIR_ROOT, 'data/SR-target/merged_SR.nc')
 CLIMATE_ZARR = os.path.join(DIR_ROOT, 'data/climate_features.zarr')
 TERRAIN_FILE = os.path.join(DIR_ROOT, 'data/terrain_hand_0p05.nc')
-LU_SCENARIO_FEATURES_DIR = os.path.join(DIR_ROOT, 'data/LU_features')
-OUTPUT_BASE = os.path.join(DIR_ROOT, 'output_SR/explain_change')
+# v2 (Oct 2026): corrected LU features. Scenario A is configurable so the
+# time-consistent baselines used in the manuscript can be explained:
+#   SHAP_BASE_CLIM=1901_1930 SHAP_BASE_LU=1901_1930  (default)
+#   SHAP_BASE_CLIM=1961_1990 SHAP_BASE_LU=1961_1990
+LU_SCENARIO_FEATURES_DIR = os.environ.get('SR_LU_DIR', os.path.join(DIR_ROOT, 'data/LU_features_v2'))
+OUTPUT_BASE = os.environ.get('SHAP_OUTPUT_BASE', os.path.join(DIR_ROOT, 'output_SR/explain_change_v2'))
+BASE_CLIM = os.environ.get('SHAP_BASE_CLIM', '1901_1930')
+BASE_LU = os.environ.get('SHAP_BASE_LU', '1901_1930')
 
 
 def log(msg: str):
@@ -121,10 +127,10 @@ def main():
 
     # --- Step 3: Load Scenario A (1901-1930 clim x Pre-industrial LU) ---
     log("Loading Scenario A features...")
-    clim_ds_A = xr.open_zarr(CLIMATE_ZARR, group='1901_1930')[CLIMATE_FEATURES]
+    clim_ds_A = xr.open_zarr(CLIMATE_ZARR, group=BASE_CLIM)[CLIMATE_FEATURES]
     clim_A = clean_spatial_ndim(clim_ds_A.sel(lat=lat_vals, lon=lon_vals, method='nearest').to_array().values)
     
-    lu_ds_A = xr.open_dataset(os.path.join(LU_SCENARIO_FEATURES_DIR, 'pre-industrial.nc'))[SCENARIO_LU_FEATURES]
+    lu_ds_A = xr.open_dataset(os.path.join(LU_SCENARIO_FEATURES_DIR, f'{BASE_LU}.nc'))[SCENARIO_LU_FEATURES]
     lu_A = clean_spatial_ndim(lu_ds_A.sel(lat=lat_vals, lon=lon_vals, method='nearest').to_array().values)
     
     X_A = np.concatenate([terrain, clim_A, lu_A], axis=0).reshape(len(ALL_FEATURES), -1).T
@@ -241,7 +247,7 @@ def main():
     # Configure variables with standard zlib compression
     encoding = {var: {"zlib": True, "complevel": 4} for var in ds.data_vars}
     
-    output_filepath = os.path.join(OUTPUT_BASE, 'global_change_explanations.nc')
+    output_filepath = os.path.join(OUTPUT_BASE, f'change_explanations_{BASE_CLIM}_LU_{BASE_LU}_to_1991_2020.nc')
     log(f"Saving compressed NetCDF to: {output_filepath}")
     ds.to_netcdf(output_filepath, encoding=encoding)
     

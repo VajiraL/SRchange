@@ -25,15 +25,16 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # ---------------------------
 # Configuration
 # ---------------------------
-OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions_AE_global'
-FINAL_ZARR  = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios_AE_global.zarr'
-MASK_BASE   = '/home/vajira/SRchange/data/random_splits_10_mergedSR'
+# v2 (Oct 2026): predictions with corrected LU features (production config: k0 + k6, 3 x 5 folds)
+OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions_v2'
+FINAL_ZARR  = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios_v2.zarr'
+MASK_BASE   = '/home/vajira/SRchange/data/random_splits_mergedSR'
 
-N_ENSEMBLES = 1
-N_FOLDS     = 10
+N_ENSEMBLES = 3
+N_FOLDS     = 5
 
 # One process per scenario; with 168 scenarios and 364 cores this is fine.
-MAX_WORKERS = min(160, os.cpu_count() or 1)
+MAX_WORKERS = int(os.environ.get("AGG_WORKERS", min(160, os.cpu_count() or 1)))
 
 # Retries for transient HDF5 read errors
 MAX_RETRIES = 3
@@ -104,7 +105,7 @@ def process_scenario(scn_folder):
     is_training_baseline = (clim_val == '1991_2020' and lu_val == '1991_2020')
 
     k0_stack = []
-    #k6_stack = []
+    k6_stack = []
     skipped  = 0
 
     # Serial read — HDF5 is not safe for concurrent access within one process
@@ -112,16 +113,16 @@ def process_scenario(scn_folder):
         for fold in range(1, N_FOLDS + 1):
             fold_dir = os.path.join(OUTPUT_BASE, scn_folder,
                                     f"ensemble_{ens}", f"fold_{fold}")
-            k0_path = os.path.join(fold_dir, "sr.nc")
-            #k6_path = os.path.join(fold_dir, "sr_k6.nc")
+            k0_path = os.path.join(fold_dir, "sr_k0.nc")
+            k6_path = os.path.join(fold_dir, "sr_k6.nc")
 
-            if not (os.path.exists(k0_path)): #and os.path.exists(k6_path)):
+            if not (os.path.exists(k0_path) and os.path.exists(k6_path)):
                 skipped += 1
                 continue
 
             try:
                 p0 = _load_nc_with_retry(k0_path)
-                #p6 = _load_nc_with_retry(k6_path)
+                p6 = _load_nc_with_retry(k6_path)
             except Exception as e:
                 print(f"[WARN] {scn_folder} ens={ens} fold={fold}: {e}", flush=True)
                 skipped += 1
@@ -135,28 +136,28 @@ def process_scenario(scn_folder):
                     with xr.open_dataarray(mask_path, engine='netcdf4') as da:
                         mask = da.values
                     p0[mask == 0] = np.nan
-                    #p6[mask == 0] = np.nan
+                    p6[mask == 0] = np.nan
                 except Exception as e:
                     print(f"[WARN] mask load failed {mask_path}: {e}", flush=True)
                     skipped += 1
                     continue
 
             k0_stack.append(p0)
-            #k6_stack.append(p6)
+            k6_stack.append(p6)
 
     if not k0_stack:
         return scn_folder, False, f"no valid predictions (all {N_ENSEMBLES*N_FOLDS} skipped)"
 
     # Compute stats
     k0_arr  = np.stack(k0_stack, axis=0)
-    #k6_arr  = np.stack(k6_stack, axis=0)
-    del k0_stack, #k6_stack
+    k6_arr  = np.stack(k6_stack, axis=0)
+    del k0_stack, k6_stack
 
     k0_mean = np.nanmean(k0_arr, axis=0).astype(np.float32)
     k0_std  = np.nanstd( k0_arr, axis=0).astype(np.float32)
-    #k6_mean = np.nanmean(k6_arr, axis=0).astype(np.float32)
-    #k6_std  = np.nanstd( k6_arr, axis=0).astype(np.float32)
-    del k0_arr, #k6_arr
+    k6_mean = np.nanmean(k6_arr, axis=0).astype(np.float32)
+    k6_std  = np.nanstd( k6_arr, axis=0).astype(np.float32)
+    del k0_arr, k6_arr
     gc.collect()
 
     # Region indices
@@ -171,14 +172,14 @@ def process_scenario(scn_folder):
 
     ds_slice = xr.Dataset(
         {
-            'sr_mean': (('climate', 'lu', 'lat', 'lon'),
+            'sr_k0_mean': (('climate', 'lu', 'lat', 'lon'),
                            k0_mean[np.newaxis, np.newaxis, ...]),
-            'sr_std':  (('climate', 'lu', 'lat', 'lon'),
+            'sr_k0_std':  (('climate', 'lu', 'lat', 'lon'),
                            k0_std [np.newaxis, np.newaxis, ...]),
-        #    'sr_k6_mean': (('climate', 'lu', 'lat', 'lon'),
-        #                   k6_mean[np.newaxis, np.newaxis, ...]),
-        #    'sr_k6_std':  (('climate', 'lu', 'lat', 'lon'),
-        #                   k6_std [np.newaxis, np.newaxis, ...]),
+            'sr_k6_mean': (('climate', 'lu', 'lat', 'lon'),
+                           k6_mean[np.newaxis, np.newaxis, ...]),
+            'sr_k6_std':  (('climate', 'lu', 'lat', 'lon'),
+                           k6_std [np.newaxis, np.newaxis, ...]),
         },
         coords={
             'climate': [clim_val],
@@ -213,7 +214,7 @@ def aggregate_scenarios():
     # 1. Grid template
     sample_path = os.path.join(
         OUTPUT_BASE, 'CLIM_1991_2020_LU_1991_2020',
-        'ensemble_1', 'fold_1', 'sr.nc' # sr_k6.nc --- IGNORE ---
+        'ensemble_1', 'fold_1', 'sr_k6.nc'
     )
     with xr.open_dataset(sample_path, engine='netcdf4') as ds_sample:
         lat = ds_sample.lat.values
@@ -231,7 +232,7 @@ def aggregate_scenarios():
             'lon':     lon,
         }
     )
-    for var in ['sr_mean', 'sr_std']: # ['sr_k0_mean', 'sr_k0_std', 'sr_k6_mean', 'sr_k6_std']:
+    for var in ['sr_k0_mean', 'sr_k0_std', 'sr_k6_mean', 'sr_k6_std']:
         ds_init[var] = (
             ('climate', 'lu', 'lat', 'lon'),
             np.full(shape, np.nan, dtype=np.float32)

@@ -59,3 +59,6 @@ notes/DRAFTS/
 # exports
 export/
 export2/
+# invalid first v2 attempt (domain shrank via NaN land-use features); kept on disk only
+*_v2a_invalid*
+logs_v2a_invalid/
