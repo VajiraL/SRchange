@@ -9,10 +9,11 @@ from datetime import datetime
 from pathlib import Path
 
 # Configuration
-OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions_v2'
-STATIC_MASK_PATH = '/home/vajira/SRchange/data/SR-target/all_scenario_super_mask_v2.nc'
+SR_RUN = os.environ.get('SR_RUN', 'v2')   # run tag in every path, e.g. v2, v3
+OUTPUT_BASE = f'/home/vajira/SRchange/output_SR/scenario_predictions_{SR_RUN}'
+STATIC_MASK_PATH = f'/home/vajira/SRchange/data/SR-target/all_scenario_super_mask_{SR_RUN}.nc'
 MASK_BASE = '/home/vajira/SRchange/data/random_splits_mergedSR'
-CSV_OUTPUT = '/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6_v2.csv'
+CSV_OUTPUT = f'/home/vajira/SRchange/output_SR/sr_scn_per_model_stats_k6_{SR_RUN}.csv'
 N_ENSEMBLES = 3
 N_FOLDS = 5
 

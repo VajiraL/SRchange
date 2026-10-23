@@ -26,8 +26,9 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # Configuration
 # ---------------------------
 # v2 (Oct 2026): predictions with corrected LU features (production config: k0 + k6, 3 x 5 folds)
-OUTPUT_BASE = '/home/vajira/SRchange/output_SR/scenario_predictions_v2'
-FINAL_ZARR  = '/home/vajira/SRchange/output_SR/aggregated_sr_scenarios_v2.zarr'
+SR_RUN = os.environ.get('SR_RUN', 'v2')   # run tag in every path, e.g. v2, v3
+OUTPUT_BASE = f'/home/vajira/SRchange/output_SR/scenario_predictions_{SR_RUN}'
+FINAL_ZARR  = f'/home/vajira/SRchange/output_SR/aggregated_sr_scenarios_{SR_RUN}.zarr'
 MASK_BASE   = '/home/vajira/SRchange/data/random_splits_mergedSR'
 
 N_ENSEMBLES = 3

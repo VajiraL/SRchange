@@ -37,7 +37,7 @@ CLIMATE_FEATURES = [
     'tmean_iqr', 'tmean_p10', 'tmean_p25', 'tmean_p5', 'tmean_p50', 'tmean_p75', 
     'tmean_p90', 'tmean_p95'
 ]
-SCENARIO_LU_FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
+SCENARIO_LU_FEATURES = os.environ.get('SR_LU_FEATURES', 'gHM,irr_frac,rain_frac,forest_age').split(',')  # v3: gHM,irr_frac,rain_frac
 ALL_FEATURES = STATIC_FEATURES + CLIMATE_FEATURES + SCENARIO_LU_FEATURES
 
 XGB_PARAMS = {

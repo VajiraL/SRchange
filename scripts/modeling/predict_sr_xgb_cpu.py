@@ -31,7 +31,7 @@ CLIMATE_FEATURES = [
     'tmean_iqr', 'tmean_p10', 'tmean_p25', 'tmean_p5', 'tmean_p50', 'tmean_p75', 
     'tmean_p90', 'tmean_p95'
 ]
-SCENARIO_LU_FEATURES = ['gHM', 'irr_frac', 'rain_frac', 'forest_age']
+SCENARIO_LU_FEATURES = os.environ.get('SR_LU_FEATURES', 'gHM,irr_frac,rain_frac,forest_age').split(',')  # v3: gHM,irr_frac,rain_frac
 ALL_FEATURES = STATIC_FEATURES + CLIMATE_FEATURES + SCENARIO_LU_FEATURES
 
 XGB_PARAMS = {
@@ -148,7 +148,7 @@ def run_fold(ens_idx, fold_idx, df_train, lat_vals, lon_vals, terrain_data):
             if os.path.exists(os.path.join(out_path, "sr_k6.nc")):
                 continue
 
-            lu_ds = xr.open_dataset(os.path.join(LU_SCENARIO_FEATURES_DIR, f"{lu_name}.nc"))
+            lu_ds = xr.open_dataset(os.path.join(LU_SCENARIO_FEATURES_DIR, f"{lu_name}.nc"))[SCENARIO_LU_FEATURES]
             # Align LU to target SR (S->N)
             lu = lu_ds.sel(lat=lat_vals, lon=lon_vals, method='nearest').to_array().values
             if lu.ndim == 4: lu = lu[:, 0, :, :]
@@ -201,7 +201,7 @@ def main():
     clim = clim_ds.sel(lat=lat_vals, lon=lon_vals, method='nearest').to_array().values
     if clim.ndim == 4: clim = clim[:, 0, :, :]
     
-    lu_ds = xr.open_dataset(os.path.join(LU_SCENARIO_FEATURES_DIR, '1991_2020.nc'))
+    lu_ds = xr.open_dataset(os.path.join(LU_SCENARIO_FEATURES_DIR, '1991_2020.nc'))[SCENARIO_LU_FEATURES]
     lu = lu_ds.sel(lat=lat_vals, lon=lon_vals, method='nearest').to_array().values
     if lu.ndim == 4: lu = lu[:, 0, :, :]
     
